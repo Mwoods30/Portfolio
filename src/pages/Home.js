@@ -3,15 +3,15 @@ import React from 'react';
 
 const spaStyles = `
 :root {
-  --primary: #6366f1;
-  --secondary: #8b5cf6;
-  --accent: #06b6d4;
+  --primary: #fdfdfdff;
+  --secondary: #3a158eff;
+  --accent: #e3f1f4ff;
   --bg-dark: #0f0f23;
   --bg-card: #1a1a2e;
   --text-primary: #ffffff;
   --text-secondary: #a1a1aa;
-  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --glass: rgba(255, 255, 255, 0.1);
+  --gradient: linear-gradient(135deg, #2248efff 0%, #59199aff 100%);
+  --glass: rgba(255, 243, 243, 0.1);
 }
 
 body {
@@ -377,32 +377,40 @@ body {
 const projects = [
   {
     title: 'Website',
-    img: '/logo192.png',
+    img: '/website.png',
     desc: 'Different version of website currently using.',
-    button: { text: 'View on GitHub', href: 'https://github.com/Mwoods30/mwoods30.github.io', external: true },
+    button: { text: 'View on GitHub', href: 'https://github.com/Mwoods30/Portfolio', external: true },
     tech: ['React', 'JavaScript', 'CSS', 'HTML']
   },
   {
     title: 'Wordle',
     img: '/wordle.png',
     desc: 'Interactive Wordle game built with React.',
-    button: { text: 'Play Wordle', onClick: () => window.location.href = '/wordle' },
+    button: { text: 'Play Wordle', onClick: () => window.navigateToPage('wordle') },
     tech: ['React', 'JavaScript', 'CSS', 'Game Logic']
   },
   {
     title: 'Snake',
     img: '/snake.png',
     desc: 'Classic Snake game with modern controls.',
-    button: { text: 'Play Snake', onClick: () => window.location.href = '/snake' },
+    button: { text: 'Play Snake', onClick: () => window.navigateToPage('snake') },
     tech: ['React', 'Canvas API', 'JavaScript', 'Game Dev']
   },
   {
     title: 'Tic Tac Toe',
     img: '/tictactoeimg.png',
     desc: 'Play against a friend or computer AI.',
-    button: { text: 'Play Tic Tac Toe', onClick: () => window.location.href = '/tictactoe' },
+    button: { text: 'Play Tic Tac Toe', onClick: () => window.navigateToPage('tictactoe') },
     tech: ['React', 'AI Logic', 'JavaScript', 'Strategy']
   },
+  {
+    titile: "Expense Tracker",
+    img: "/snake.png",
+    desc: 'Finance Tracker',
+    button: {text: "Try it out", onClick: ()=> window.navigateToPage('financetracker')},
+    tech: ['React', 'Node.js', 'CSS', 'HTML']
+
+  }
 ];
 
 const scrollToSection = (sectionId) => {
@@ -481,17 +489,17 @@ function Home() {
           <div className="skill-item fade-in">
             <div className="skill-icon">⚛️</div>
             <h3>Frontend</h3>
-            <p>React, JavaScript, HTML, CSS</p>
+            <p>Responsive Design, Testing and Debugging, Accessibility, Cross-Browser Development</p>
           </div>
           <div className="skill-item fade-in">
             <div className="skill-icon">🔧</div>
-            <h3>Backend</h3>
-            <p>Work In Progress....</p>
+            <h3>Languages/Frameworks</h3>
+            <p>Java, JavaScript, C#, HTML, CSS, Python, React, .NET, Vite</p>
           </div>
           <div className="skill-item fade-in">
-            <div className="skill-icon"></div>
-            <h3>Data Structures</h3>
-            <p></p>
+            <div className="skill-icon">⛭</div>
+            <h3>Skills</h3>
+            <p>Git, Problem Solving, Communication, Creativity, Adaptability, UX/UI Knowledge</p>
           </div>
           <div className="skill-item fade-in">
             <div className="skill-icon">🎓</div>
@@ -508,7 +516,7 @@ function Home() {
           <p style={{color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 2rem'}}>
             Download my resume to learn more about my education, experience, and technical skills.
           </p>
-          <a href="/Matthew Woods Resume.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+          <a href="/MatthewWoodsResume.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
             <span>📄</span> Download Resume
           </a>
         </div>
@@ -524,7 +532,7 @@ function Home() {
           </p>
           <div className="contact-links">
             <a href="mailto:mattwoods301@gmail.com" className="contact-link">
-              <span>📧</span> mattwoods301@gmail.com
+              <span>📬</span> mattwoods301@gmail.com
             </a>
             <a href="https://www.linkedin.com/in/matthew-woods-18b52526b" className="contact-link" target="_blank" rel="noopener noreferrer">
               <span>💼</span> LinkedIn

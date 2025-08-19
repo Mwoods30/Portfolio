@@ -95,12 +95,27 @@ const navbarStyles = `
 
 function Navbar() {
   const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+    // If we're not on the home page, navigate to home first
+    if (window.location.pathname !== '/') {
+      window.navigateToPage('home');
+      // Wait a bit for the page to load, then scroll
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
     }
   };
 
@@ -109,7 +124,13 @@ function Navbar() {
       <style>{navbarStyles}</style>
       <nav className="navbar">
         <div className="navbar__container">
-          <div className="navbar__logo" onClick={() => scrollToSection('home')}>
+          <div className="navbar__logo" onClick={() => {
+            if (window.navigateToPage) {
+              window.navigateToPage('home');
+            } else {
+              window.location.href = '/';
+            }
+          }}>
             <i className="fas fa-gem" /> Matthew Woods
           </div>
 
