@@ -4,7 +4,7 @@ A modern, responsive single-page application showcasing my projects, skills, and
 
 ## 🚀 Live Demo
 
-Visit the live site: [matthewwoods.dev](https://mwoods30.github.io/)
+Visit the live site: [matthewwoods.dev]([https://mwoods30.github.io/](https://matthewwoods.netlify.app/))
 
 ## ✨ Features
 
