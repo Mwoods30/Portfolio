@@ -404,11 +404,11 @@ const projects = [
     tech: ['React', 'AI Logic', 'JavaScript', 'Strategy']
   },
   {
-    titile: "Expense Tracker",
-    img: "/snake.png",
-    desc: 'Finance Tracker',
-    button: {text: "Try it out", onClick: ()=> window.navigateToPage('financetracker')},
-    tech: ['React', 'Node.js', 'CSS', 'HTML']
+    title: "ReelQuest",
+    img: "/ReelQuest.png",
+    desc: 'React based Fishing Game with multiple levels and challenges.',
+    button: { text: "Try it out", href: 'https://reelquest-fishing.web.app', external: true },
+    tech: ['React', 'JavaScript', 'firebase', 'CSS', 'API Integration']
 
   }
 ];
