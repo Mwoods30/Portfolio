@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const footerStyles = `
 :root {
@@ -10,6 +11,14 @@ const footerStyles = `
   --text-secondary: #a1a1aa;
   --gradient: linear-gradient(135deg, #2248efff 0%, #59199aff 100%);
   --glass: rgba(255, 243, 243, 0.1);
+}
+
+[data-theme="light"] {
+  --bg-dark: #f0f0ff;
+  --bg-card: #e8e8f8;
+  --text-primary: #111;
+  --text-secondary: #555;
+  --glass: rgba(0, 0, 0, 0.06);
 }
 
 .footer::before,
@@ -47,6 +56,11 @@ const footerStyles = `
   margin-top: auto;
   position: relative;
   overflow: hidden;
+}
+
+[data-theme="light"] .footer {
+  background: rgba(230, 230, 250, 0.97);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .footer-shell {
@@ -193,6 +207,7 @@ const footerStyles = `
   gap: 0.4rem;
   cursor: pointer;
   transition: color 0.2s ease, transform 0.2s ease;
+  font-family: inherit;
 }
 
 .footer-link:hover,
@@ -276,13 +291,13 @@ const quickLinks = [
   { label: 'Skills', target: 'skills' },
   { label: 'Journey', target: 'journey' },
   { label: 'Resume', target: 'resume' },
-  { label: 'Contact', target: 'contact' }
+  { label: 'Contact', target: 'contact' },
 ];
 
 const resources = [
   { label: 'Download Resume', href: '/MatthewWoodsResume.pdf' },
   { label: 'GitHub Portfolio', href: 'https://github.com/Mwoods30' },
-  { label: 'LinkedIn Profile', href: 'https://www.linkedin.com/in/matthew-woods-18b52526b' }
+  { label: 'LinkedIn Profile', href: 'https://www.linkedin.com/in/matthew-woods-18b52526b' },
 ];
 
 const socialLinks = [
@@ -293,7 +308,7 @@ const socialLinks = [
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.1 1 2.48 1s2.5 1.12 2.5 2.5zM0 8.98h5V24H0V8.98zM8.98 8.98h4.8v2.05h.07c.67-1.27 2.3-2.61 4.74-2.61 5.07 0 6 3.34 6 7.68V24h-5v-7.04c0-1.68-.03-3.84-2.34-3.84-2.34 0-2.7 1.83-2.7 3.72V24h-5V8.98z" />
       </svg>
-    )
+    ),
   },
   {
     href: 'https://github.com/Mwoods30',
@@ -302,7 +317,7 @@ const socialLinks = [
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M12 .5C5.73.5.76 5.48.76 11.74c0 4.9 3.16 9.05 7.55 10.52.55.1.75-.24.75-.53 0-.26-.01-1.12-.02-2.03-3.07.67-3.72-1.47-3.72-1.47-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.54 1.18 3.15.9.1-.7.38-1.18.69-1.45-2.45-.28-5.02-1.23-5.02-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13A10.5 10.5 0 0112 6.8c.93.004 1.86.13 2.73.38 2.1-1.42 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.78 1.13 1.77 1.13 2.98 0 4.26-2.58 5.2-5.04 5.48.39.34.73 1.01.73 2.03 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53 4.39-1.47 7.55-5.62 7.55-10.52C23.24 5.48 18.27.5 12 .5z" />
       </svg>
-    )
+    ),
   },
   {
     href: 'https://leetcode.com/Mattwoods301/',
@@ -312,24 +327,27 @@ const socialLinks = [
         <path d="M12.707 10.293a1 1 0 00-1.414 0L9 12.586 7.707 11.293a1 1 0 10-1.414 1.414l2.5 2.5a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" />
         <path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm1 2v14h14V5H5z" />
       </svg>
-    )
-  }
+    ),
+  },
 ];
 
 const footerInsights = [
   'Currently exploring advanced motion design in React.',
   'Always open to collaborating on playful UX and game mechanics.',
-  'Comfortable shipping to Netlify, Vercel, and Firebase-hosted stacks.'
+  'Comfortable shipping to Netlify, Vercel, and Firebase-hosted stacks.',
 ];
 
 function Footer() {
-  const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+  const navigate = useNavigate();
+
+  const scrollToSection = (sectionId: string) => {
+    if (window.location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -345,7 +363,7 @@ function Footer() {
             <h2 className="footer-title">Designing playful, accessible, and performant web products.</h2>
             <p className="footer-tagline">
               From interactive games to production-ready dashboards, I thrive on crafting experiences where thoughtful
-              UX meets reliable engineering. Let’s collaborate on what comes next.
+              UX meets reliable engineering. Let&apos;s collaborate on what comes next.
             </p>
             <div className="footer-actions">
               <button type="button" className="footer-button primary" onClick={() => scrollToSection('contact')}>
