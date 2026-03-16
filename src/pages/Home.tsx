@@ -1,849 +1,1533 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { motion, type Variants } from 'framer-motion';
+import { motion, type Variants, useInView } from 'framer-motion';
 
-const spaStyles = `
+// ─── CSS ─────────────────────────────────────────────────────────────────────
+
+const homeStyles = `
+/* ── CSS variables ── */
 :root {
-  --primary: #fdfdfdff;
-  --secondary: #3a158eff;
-  --accent: #e3f1f4ff;
-  --bg-dark: #0f0f23;
-  --bg-card: #1a1a2e;
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;
-  --gradient: linear-gradient(135deg, #2248efff 0%, #59199aff 100%);
-  --glass: rgba(255, 243, 243, 0.1);
+  --bg: #060914;
+  --bg-1: #0a0f1e;
+  --bg-2: #0d1428;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(99,102,241,0.5);
+  --text-1: #f1f5f9;
+  --text-2: #94a3b8;
+  --text-3: #475569;
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --purple: #a855f7;
+  --cyan: #22d3ee;
+  --green: #4ade80;
+  --gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
 }
 
 [data-theme="light"] {
-  --bg-dark: #f4f4ff;
-  --bg-card: #ebebff;
-  --text-primary: #111111;
-  --text-secondary: #555555;
-  --glass: rgba(0, 0, 0, 0.06);
+  --bg: #f8fafc;
+  --bg-1: #f1f5f9;
+  --bg-2: #e2e8f0;
+  --border: rgba(0,0,0,0.06);
+  --border-hover: rgba(99,102,241,0.5);
+  --text-1: #0f172a;
+  --text-2: #475569;
+  --text-3: #94a3b8;
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-dark);
-  color: var(--text-primary);
-  line-height: 1.6;
-  overflow-x: hidden;
-  margin: 0;
-  padding: 0;
+/* ── Base ── */
+.home {
+  background: var(--bg);
+  color: var(--text-1);
+  min-height: 100vh;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-.bg-animation {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  background: var(--bg-dark);
-  transition: background 0.3s ease;
+/* ── Keyframes ── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }
 
-.bg-animation::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
-  animation: float 20s ease-in-out infinite;
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
 }
 
-[data-theme="light"] .bg-animation::before {
-  background:
-    radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.12) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.06) 0%, transparent 50%);
+@keyframes orb-float-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, -60px) scale(1.08); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(30px, -30px) rotate(120deg); }
-  66% { transform: translate(-20px, 20px) rotate(240deg); }
+@keyframes orb-float-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, 40px) scale(0.95); }
 }
 
-.hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 2rem;
-  margin-top: 80px;
-}
-
-.hero-content {
-  max-width: 800px;
-  display: grid;
-  gap: 2rem;
-}
-
-.hero h1 {
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 800;
-  margin-bottom: 1rem;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1.1;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-  font-weight: 300;
-}
-
-.hero-description {
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1.2rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(20, 20, 45, 0.8);
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  justify-self: center;
-}
-
-.hero-meta {
-  display: grid;
-  gap: 1.5rem;
-  justify-items: center;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 3rem;
-}
-
-.btn {
-  padding: 1rem 2rem;
-  border: none;
-  border-radius: 50px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: inherit;
-  font-size: 1rem;
-}
-
-.btn-primary {
-  background: var(--gradient);
-  color: white;
-  box-shadow: 0 10px 30px rgba(102, 102, 241, 0.3);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 15px 40px rgba(102, 102, 241, 0.4);
-}
-
-.btn-secondary {
-  background: transparent;
-  color: var(--text-primary);
-  border: 2px solid var(--glass);
-  backdrop-filter: blur(10px);
-}
-
-.btn-secondary:hover {
-  border-color: var(--primary);
-  background: var(--glass);
-}
-
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.stat-card {
-  background: rgba(20, 20, 45, 0.85);
-  border-radius: 18px;
-  padding: 1.5rem 1.2rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: grid;
-  gap: 0.4rem;
-  justify-items: center;
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.25);
-}
-
-[data-theme="light"] .stat-card {
-  background: rgba(220, 220, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.stat-card strong {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.stat-card span {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.hero-image {
-  display: flex;
-  justify-content: center;
-  margin-top: 2rem;
-}
-
-.hero-image img {
-  max-width: 400px;
-  width: 100%;
-  border-radius: 24px;
-  border: 2px solid var(--glass);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
+/* ── Shared section wrapper ── */
 .section {
-  padding: 5rem 2rem;
+  padding: 6rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
 
-.section h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 3rem;
+.section-header {
   text-align: center;
-  background: var(--gradient);
+  margin-bottom: 3.5rem;
+}
+
+.section-heading {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  background: linear-gradient(135deg, var(--text-1) 0%, var(--text-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0 0 1rem 0;
+}
+
+.section-sub {
+  color: var(--text-2);
+  font-size: 1.05rem;
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ── Hero ── */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 2rem;
+  padding-top: 80px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(99,102,241,0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="light"] .hero-bg {
+  background-image: radial-gradient(rgba(99,102,241,0.08) 1px, transparent 1px);
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-orb-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99,102,241,0.22) 0%, transparent 70%);
+  top: -100px;
+  left: -150px;
+  animation: orb-float-1 18s ease-in-out infinite;
+}
+
+.hero-orb-2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 70%);
+  bottom: 0;
+  right: -100px;
+  animation: orb-float-2 22s ease-in-out infinite;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+/* ── Hero text ── */
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.available-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.25);
+  color: #4ade80;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
+  width: fit-content;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+[data-theme="light"] .available-badge {
+  background: rgba(74,222,128,0.06);
+  border-color: rgba(74,222,128,0.3);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #4ade80;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.hero-h1 {
+  font-size: clamp(2.8rem, 6vw, 5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 0;
+  background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.section-subtitle {
-  color: var(--text-secondary);
-  text-align: center;
-  max-width: 700px;
-  margin: -2rem auto 2rem;
-  font-size: 1rem;
+[data-theme="light"] .hero-h1 {
+  background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
-.portfolio-grid {
+.hero-role {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: #818cf8;
+  min-height: 2rem;
+}
+
+.role-text {
+  color: #818cf8;
+}
+
+.cursor {
+  color: #6366f1;
+  animation: blink 1s step-end infinite;
+  font-weight: 400;
+}
+
+.hero-bio {
+  color: var(--text-2);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 480px;
+  margin: 0;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #fff;
+  border: none;
+  padding: 0.85rem 1.75rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 24px rgba(99,102,241,0.3);
+  letter-spacing: 0.01em;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(99,102,241,0.45);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--text-1);
+  border: 1px solid var(--border-hover);
+  padding: 0.85rem 1.75rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  letter-spacing: 0.01em;
+}
+
+.btn-outline:hover {
+  background: rgba(99,102,241,0.08);
+  border-color: #6366f1;
+  color: #818cf8;
+}
+
+/* ── Code window ── */
+.hero-code {
+  position: relative;
+  z-index: 1;
+}
+
+.code-window {
+  background: #0d1117;
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.2), 0 24px 64px rgba(0,0,0,0.5);
+  overflow: hidden;
+  transform: rotate(1.5deg);
+  transition: transform 0.3s ease;
+}
+
+.code-window:hover {
+  transform: rotate(0deg);
+}
+
+.code-window-bar {
+  background: #161b22;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dots span:nth-child(1) { background: #ff5f57; }
+.dots span:nth-child(2) { background: #febc2e; }
+.dots span:nth-child(3) { background: #28c840; }
+
+.code-window-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.code-body {
+  padding: 1.5rem;
+  margin: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 1.8;
+  color: #e2e8f0;
+  overflow: auto;
+  background: transparent;
+}
+
+.code-kw { color: #569CD6; }
+.code-str { color: #CE9178; }
+.code-prop { color: #9CDCFE; }
+.code-punct { color: #94a3b8; }
+.code-val-t { color: #4EC9B0; }
+.code-arr { color: #c586c0; }
+.code-comment { color: #6A9955; font-style: italic; }
+.code-num { color: #b5cea8; }
+.code-email { color: #CE9178; }
+
+/* ── Hero stats ── */
+.hero-stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 3.5rem;
+  padding: 2rem 2.5rem;
+  background: rgba(13, 20, 40, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1200px;
+}
+
+[data-theme="light"] .hero-stats {
+  background: rgba(241, 245, 249, 0.8);
+  border-color: rgba(0,0,0,0.08);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.stat-item + .stat-item {
+  border-left: 1px solid var(--border);
+  padding-left: 2.5rem;
+}
+
+.stat-item strong {
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.stat-item span {
+  color: var(--text-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* ── Projects section ── */
+.projects-section {
+  background: var(--bg-1);
+}
+
+.projects-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Featured project */
+.proj-featured {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: 45% 55%;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-2);
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.project-card {
-  background: var(--bg-card);
-  border-radius: 20px;
-  padding: 2rem;
-  border: 1px solid var(--glass);
-  backdrop-filter: blur(10px);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+.proj-featured:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+}
+
+.proj-featured-img {
   position: relative;
   overflow: hidden;
 }
 
-.project-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--gradient);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-}
-
-.project-card:hover {
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-}
-
-.project-card:hover::before {
-  opacity: 0.1;
-}
-
-.project-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 1rem;
-  gap: 1rem;
-}
-
-.project-meta span {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.project-image {
-  width: 100%;
-  height: 200px;
-  border-radius: 10px;
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-}
-
-.project-image img {
+.proj-featured-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border: 1px solid var(--glass);
+  display: block;
+  transition: transform 0.5s ease;
 }
 
-.project-card h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--text-primary);
+.proj-featured:hover .proj-featured-img img {
+  transform: scale(1.04);
 }
 
-.project-card p {
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
+.proj-featured-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.tech-stack {
+.proj-featured:hover .proj-featured-img::after {
+  opacity: 1;
+}
+
+.proj-featured-content {
+  padding: 2.5rem;
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+.proj-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
 }
 
-.tech-tag {
-  background: var(--glass);
-  padding: 0.3rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  color: var(--primary);
-  border: 1px solid rgba(102, 126, 234, 0.3);
+.proj-featured-badge {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.15) 100%);
+  border: 1px solid rgba(99,102,241,0.3);
+  color: #818cf8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.project-actions {
+.proj-year-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.proj-featured-content h3 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+  color: var(--text-1);
+  line-height: 1.2;
+}
+
+.proj-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  margin: -0.5rem 0 0;
+  font-style: italic;
+}
+
+.proj-featured-content p {
+  color: var(--text-2);
+  line-height: 1.7;
+  font-size: 0.97rem;
+  margin: 0;
+}
+
+.proj-tech-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tech-pill {
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+
+.tech-pill:hover {
+  background: rgba(99,102,241,0.15);
+  border-color: rgba(99,102,241,0.4);
+}
+
+[data-theme="light"] .tech-pill {
+  background: rgba(99,102,241,0.06);
+  color: #6366f1;
+}
+
+.proj-actions {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
   align-items: center;
-  margin-top: 1rem;
 }
 
-.btn-icon {
+.btn-ghost {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: 30px;
+  background: transparent;
+  color: var(--text-2);
+  border: 1px solid var(--border);
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: var(--text-secondary);
-  background: transparent;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
-  font-family: inherit;
+  text-decoration: none;
   transition: all 0.2s ease;
 }
 
-.btn-icon:hover {
-  border-color: #667eea;
-  color: #fff;
-  background: rgba(102, 126, 234, 0.15);
+.btn-ghost:hover {
+  border-color: var(--border-hover);
+  color: var(--text-1);
+  background: rgba(99,102,241,0.06);
 }
 
-[data-theme="light"] .btn-icon:hover {
-  color: #222;
-}
-
-.skills-grid {
+/* Project grid */
+.proj-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
 }
 
-.skill-item {
-  text-align: center;
-  padding: 2rem 1rem;
-  background: var(--bg-card);
-  border-radius: 15px;
-  border: 1px solid var(--glass);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  cursor: pointer;
+.proj-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
 }
 
-.skill-item:hover,
-.skill-item.active {
-  transform: translateY(-5px) scale(1.02);
-  border-color: rgba(102, 126, 234, 0.5);
+.proj-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.3);
 }
 
-.skill-item:focus-visible {
-  outline: 2px solid #667eea;
-  outline-offset: 4px;
+.proj-card-img {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
 }
 
-.skill-icon {
-  font-size: 3rem;
+.proj-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.proj-card:hover .proj-card-img img {
+  transform: scale(1.05);
+}
+
+.proj-card-year {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(6, 9, 20, 0.85);
+  color: var(--text-2);
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="light"] .proj-card-year {
+  background: rgba(248, 250, 252, 0.9);
+  color: var(--text-2);
+}
+
+.proj-card-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.proj-card-body h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--text-1);
+}
+
+.proj-card-body .proj-subtitle {
+  font-size: 0.82rem;
+  color: var(--text-3);
+  margin: -0.35rem 0 0;
+  font-style: normal;
+  font-weight: 500;
+}
+
+.proj-card-body p {
+  color: var(--text-2);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  margin: 0;
+  flex: 1;
+}
+
+/* ── Skills section ── */
+.skills-section {
+  background: var(--bg);
+}
+
+.skills-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.skills-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.skills-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.skill-category {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  transition: border-color 0.2s ease;
+}
+
+.skill-category:hover {
+  border-color: var(--border-hover);
+}
+
+.skill-category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   margin-bottom: 1rem;
-  background: var(--gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
+.skill-category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skill-category-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.skill-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.skill-pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.skill-pill:hover {
+  background: rgba(99,102,241,0.1);
+  border-color: rgba(99,102,241,0.35);
+  color: var(--text-1);
+}
+
+[data-theme="light"] .skill-pill {
+  background: rgba(0,0,0,0.03);
+  color: var(--text-2);
+}
+
+[data-theme="light"] .skill-pill:hover {
+  background: rgba(99,102,241,0.06);
+}
+
+/* Terminal window */
+.terminal-window {
+  background: #0d1117;
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.15), 0 20px 60px rgba(0,0,0,0.45);
+  overflow: hidden;
+  position: sticky;
+  top: 6rem;
+}
+
+.terminal-bar {
+  background: #161b22;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.terminal-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin: 0 auto;
+}
+
+.terminal-body {
+  padding: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  line-height: 2;
+  color: #e2e8f0;
+}
+
+.t-prompt { color: #4ade80; }
+.t-cmd { color: #818cf8; }
+.t-out { color: #94a3b8; margin-left: 0.5rem; }
+.t-highlight { color: #22d3ee; }
+.t-string { color: #CE9178; }
+.t-blank { display: block; height: 0.5rem; }
+
+/* ── Skill modal ── */
 .skill-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 15, 35, 0.85);
+  background: rgba(6, 9, 20, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
   padding: 1.5rem;
 }
 
 [data-theme="light"] .skill-overlay {
-  background: rgba(200, 200, 230, 0.85);
+  background: rgba(15, 23, 42, 0.7);
 }
 
 .skill-modal {
-  background: var(--bg-card);
+  background: var(--bg-2);
   border-radius: 20px;
-  border: 1px solid var(--glass);
+  border: 1px solid var(--border-hover);
   padding: 2.5rem;
-  max-width: 420px;
+  max-width: 440px;
   width: 100%;
-  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.2);
   position: relative;
   text-align: center;
 }
 
-.skill-modal .skill-icon {
-  font-size: 3.5rem;
+.skill-modal-icon {
+  font-size: 3rem;
+  margin-bottom: 0.75rem;
+  display: block;
 }
 
 .skill-modal h3 {
-  margin-top: 0.5rem;
-  font-size: 2rem;
-  color: var(--text-primary);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.03em;
 }
 
 .skill-modal p {
-  color: var(--text-secondary);
-  margin: 1rem auto 1.5rem;
+  color: var(--text-2);
+  margin: 0 0 1.5rem 0;
+  font-size: 0.95rem;
+  line-height: 1.65;
 }
 
 .skill-details {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  text-align: left;
 }
 
 .skill-details li {
   padding: 0.75rem 1rem;
-  border-radius: 12px;
-  background: var(--glass);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+  border-radius: 10px;
+  background: rgba(99,102,241,0.06);
+  border: 1px solid rgba(99,102,241,0.15);
+  color: var(--text-2);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
 }
 
-.close-button {
+.skill-details li::before {
+  content: '▸';
+  color: #6366f1;
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+.close-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: none;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 1.5rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text-2);
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: color 0.2s ease;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  line-height: 1;
 }
 
-.close-button:hover,
-.close-button:focus-visible {
-  color: var(--primary);
+.close-btn:hover {
+  background: rgba(99,102,241,0.15);
+  color: var(--text-1);
+  border-color: var(--border-hover);
 }
 
-.journey-grid {
-  display: grid;
-  gap: 2rem;
+/* ── Timeline ── */
+.timeline-section {
+  background: var(--bg-1);
 }
 
-.journey-timeline {
-  display: grid;
-  gap: 1.5rem;
+.timeline-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 2.5rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #6366f1 0%, #a855f7 50%, rgba(168,85,247,0.2) 100%);
+  border-radius: 2px;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 0 0 3rem 2rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -2.5rem;
+  top: 0.35rem;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border-radius: 50%;
+  border: 2px solid var(--bg-1);
+  transform: translateX(-5px);
+  box-shadow: 0 0 12px rgba(99,102,241,0.5);
+}
+
+.timeline-period {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--cyan);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
 }
 
 .timeline-card {
-  background: var(--bg-card);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1.8rem;
-  display: grid;
-  gap: 1rem;
-  position: relative;
-  overflow: hidden;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem;
+  transition: border-color 0.25s ease;
 }
 
-[data-theme="light"] .timeline-card {
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.timeline-card:hover {
+  border-color: var(--border-hover);
 }
 
-.timeline-card::after {
-  content: '';
-  position: absolute;
-  inset: auto auto -40% -40%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(circle at center, rgba(34, 72, 239, 0.15), transparent 70%);
-  opacity: 0.8;
-  pointer-events: none;
+.timeline-role {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.3rem 0;
 }
 
-.timeline-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  color: var(--text-secondary);
+.timeline-org {
   font-size: 0.9rem;
-}
-
-.timeline-title {
-  font-size: 1.4rem;
+  color: #818cf8;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 1rem 0;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .timeline-points {
   list-style: none;
-  margin: 0;
   padding: 0;
-  display: grid;
-  gap: 0.65rem;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeline-points li {
+  color: var(--text-2);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
 }
 
 .timeline-points li::before {
-  content: '•';
-  color: #667eea;
-  margin-right: 0.5rem;
+  content: '→';
+  color: #6366f1;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  margin-top: 0.1rem;
 }
 
-.contact-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.contact-card {
-  background: rgba(20, 20, 45, 0.85);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 1.5rem;
-  display: grid;
-  gap: 0.75rem;
-  transition: transform 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
-}
-
-[data-theme="light"] .contact-card {
-  background: rgba(220, 220, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.contact-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(102, 126, 234, 0.5);
-  box-shadow: 0 18px 36px rgba(34, 72, 239, 0.2);
-}
-
-.contact-card span {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-}
-
-.contact-card strong {
-  font-size: 1.1rem;
-  color: var(--text-primary);
-}
-
-.contact-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--gradient);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 14px;
-  border: none;
-  text-decoration: none;
-  font-weight: 600;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.contact-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(34, 72, 239, 0.3);
-}
-
-.contact-note {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin-top: 2rem;
-}
-
+/* ── Resume section ── */
 .resume-section {
+  background: var(--bg);
+}
+
+.resume-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.resume-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
   position: relative;
   overflow: hidden;
-  background: var(--bg-card);
-  border-radius: 24px;
-  padding: 3.5rem clamp(2rem, 4vw, 4rem);
-  margin: 2.5rem 0;
-  border: 1px solid var(--glass);
-  backdrop-filter: blur(12px);
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
 }
 
-.resume-section::before {
+.resume-card::before {
   content: '';
   position: absolute;
-  inset: -40% -40% auto;
-  height: 70%;
-  background: radial-gradient(circle at center, rgba(89, 25, 154, 0.4), transparent 70%);
-  opacity: 0.7;
+  top: -60%;
+  right: -20%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
   pointer-events: none;
-  animation: float 18s ease-in-out infinite;
 }
 
-.resume-content {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: clamp(2rem, 4vw, 3rem);
-  align-items: start;
-}
-
-.resume-header {
+.resume-left {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  position: relative;
+  z-index: 1;
 }
 
-.resume-header h2 {
-  text-align: left;
+.resume-left h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  margin: 0;
+  background: linear-gradient(135deg, var(--text-1) 0%, var(--text-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.resume-badge-row {
+.resume-note {
+  color: var(--text-2);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.resume-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.resume-tag {
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.2);
+  color: #818cf8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.resume-btns {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
-.resume-badge {
-  border-radius: 999px;
-  padding: 0.5rem 1.25rem;
-  background: rgba(35, 35, 70, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-[data-theme="light"] .resume-badge {
-  background: rgba(200, 200, 240, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-}
-
-.resume-highlight-grid {
-  display: grid;
-  gap: 1.5rem;
+.resume-right {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  z-index: 1;
 }
 
 .resume-highlight {
-  padding: 1.5rem;
-  background: rgba(20, 20, 45, 0.85);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.25);
-  display: grid;
-  gap: 0.75rem;
+  background: rgba(99,102,241,0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  transition: border-color 0.2s ease;
 }
 
-[data-theme="light"] .resume-highlight {
-  background: rgba(210, 210, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+.resume-highlight:hover {
+  border-color: var(--border-hover);
 }
 
 .resume-highlight h3 {
-  margin: 0;
-  font-size: 1.3rem;
-  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.01em;
 }
 
 .resume-highlight ul {
   margin: 0;
-  padding-left: 1.25rem;
-  color: var(--text-secondary);
-  display: grid;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.resume-actions {
+  padding: 0;
+  list-style: none;
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.resume-highlight li {
+  color: var(--text-2);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  padding-left: 1rem;
   position: relative;
-  z-index: 1;
 }
 
-.resume-actions .btn {
-  border-radius: 16px;
+.resume-highlight li::before {
+  content: '·';
+  position: absolute;
+  left: 0;
+  color: #6366f1;
+  font-weight: 700;
 }
 
-.resume-note {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+/* ── Contact section ── */
+.contact-section {
+  background: var(--bg-1);
 }
 
-.contact-container {
-  background: var(--bg-card);
-  border-radius: 20px;
-  padding: 3rem;
-  margin: 2rem 0;
-  border: 1px solid var(--glass);
-  backdrop-filter: blur(10px);
+.contact-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .hero h1 { font-size: 3rem; }
-  .cta-buttons { flex-direction: column; align-items: center; }
-  .portfolio-grid { grid-template-columns: 1fr; }
-  .skills-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-  .resume-section { padding: 2.5rem 1.75rem; }
-  .resume-header h2 { text-align: center; }
-  .resume-content { grid-template-columns: 1fr; }
-  .resume-badge-row { justify-content: center; }
-  .resume-actions { justify-content: center; text-align: center; }
-  .resume-actions .btn { width: 100%; justify-content: center; }
-  .resume-note { text-align: center; }
-  .hero-stats { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-  .journey-grid { gap: 1.25rem; }
-  .contact-grid { grid-template-columns: 1fr; }
+.contact-heading {
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: 0 0 1.25rem 0;
+  background: linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="light"] .contact-heading {
+  background: linear-gradient(135deg, #0f172a 0%, #475569 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.contact-sub {
+  color: var(--text-2);
+  font-size: 1.05rem;
+  max-width: 560px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.75;
+}
+
+.contact-cta-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 4rem;
+}
+
+.contact-channels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  text-align: left;
+}
+
+.contact-channel {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  text-decoration: none;
+}
+
+.contact-channel:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.25);
+}
+
+.contact-channel-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(99,102,241,0.1);
+  border: 1px solid rgba(99,102,241,0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-channel-icon svg {
+  width: 20px;
+  height: 20px;
+  fill: #818cf8;
+}
+
+.contact-channel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0;
+}
+
+.contact-channel-desc {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.contact-channel-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #818cf8;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
+  transition: color 0.2s ease;
+}
+
+.contact-channel:hover .contact-channel-link {
+  color: #6366f1;
+}
+
+.contact-note {
+  margin-top: 3rem;
+  color: var(--text-3);
+  font-size: 0.875rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    text-align: center;
+  }
+  .hero-text {
+    align-items: center;
+  }
+  .hero-bio {
+    max-width: 100%;
+    text-align: left;
+  }
+  .hero-cta {
+    justify-content: center;
+  }
+  .code-window {
+    transform: none;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .hero-stats {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+  .stat-item + .stat-item {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding-left: 0;
+    padding-top: 1.5rem;
+  }
+  .proj-featured {
+    grid-template-columns: 1fr;
+  }
+  .proj-featured-img {
+    height: 240px;
+  }
+  .skills-layout {
+    grid-template-columns: 1fr;
+  }
+  .terminal-window {
+    position: static;
+  }
+  .resume-card {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  .resume-left h2 {
+    text-align: center;
+  }
+  .resume-tags {
+    justify-content: center;
+  }
+  .resume-btns {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .section {
+    padding: 4rem 1.25rem;
+  }
+  .projects-section-inner,
+  .skills-section-inner,
+  .timeline-section-inner,
+  .resume-section-inner,
+  .contact-section-inner {
+    padding: 4rem 1.25rem;
+  }
+  .proj-grid {
+    grid-template-columns: 1fr;
+  }
+  .contact-channels {
+    grid-template-columns: 1fr;
+  }
 }
 `;
 
-interface Project {
-  title: string;
-  img: string;
-  desc: string;
-  primaryButton: { text: string; href?: string; onClick?: () => void; external?: boolean };
-  githubHref?: string;
-  tech: string[];
-  meta: string;
+// ─── Typing animation ─────────────────────────────────────────────────────────
+
+function useTypingAnimation(words: string[], speed = 80, pause = 2000) {
+  const [wordIdx, setWordIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const current = words[wordIdx];
+    let timer: ReturnType<typeof setTimeout>;
+    if (!deleting && charIdx < current.length) {
+      timer = setTimeout(() => setCharIdx(c => c + 1), speed);
+    } else if (!deleting && charIdx === current.length) {
+      timer = setTimeout(() => setDeleting(true), pause);
+    } else if (deleting && charIdx > 0) {
+      timer = setTimeout(() => setCharIdx(c => c - 1), speed / 2);
+    } else {
+      setDeleting(false);
+      setWordIdx(i => (i + 1) % words.length);
+    }
+    return () => clearTimeout(timer);
+  }, [charIdx, deleting, wordIdx, words, speed, pause]);
+
+  return words[wordIdx].slice(0, charIdx);
 }
 
-const createProjects = (navigate: ReturnType<typeof useNavigate>): Project[] => [
+// ─── AnimatedCounter ─────────────────────────────────────────────────────────
+
+function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const step = Math.ceil(value / 40);
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= value) { setCount(value); clearInterval(timer); }
+      else setCount(start);
+    }, 40);
+    return () => clearInterval(timer);
+  }, [inView, value]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
+// ─── SectionLabel ─────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+      color: '#22d3ee', fontSize: '0.75rem', fontWeight: 600,
+      letterSpacing: '0.15em', textTransform: 'uppercase',
+      marginBottom: '1rem', fontFamily: "'JetBrains Mono', monospace",
+    }}>
+      <span style={{ width: 20, height: 1, background: '#22d3ee', display: 'inline-block' }} />
+      {children}
+      <span style={{ width: 20, height: 1, background: '#22d3ee', display: 'inline-block' }} />
+    </div>
+  );
+}
+
+// ─── fadeUp variant ───────────────────────────────────────────────────────────
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i = 0) => ({
+    opacity: 1, y: 0,
+    transition: { duration: 0.55, delay: i * 0.08, ease: [0.25, 0.1, 0.25, 1] },
+  }),
+};
+
+// ─── Data ─────────────────────────────────────────────────────────────────────
+
+const ROLES = ['Software Developer', 'React Engineer', 'CS Student @ Rowan', 'Problem Solver', 'UI/UX Enthusiast'];
+
+const techStack = [
+  { category: 'Languages', color: '#6366f1', items: ['JavaScript', 'TypeScript', 'Java', 'Python', 'C#', 'HTML', 'CSS'] },
+  { category: 'Frameworks & Libraries', color: '#a855f7', items: ['React', 'Vite', '.NET', 'Framer Motion'] },
+  { category: 'Tools & Platforms', color: '#22d3ee', items: ['Git', 'GitHub', 'Firebase', 'Netlify', 'VS Code'] },
+  { category: 'Concepts', color: '#4ade80', items: ['REST APIs', 'Responsive Design', 'Accessibility', 'Game Dev', 'UI/UX', 'Agile'] },
+];
+
+const stats = [
+  { value: 5, suffix: '+', label: 'Projects Shipped' },
+  { value: 3, suffix: '', label: 'Years Coding' },
+  { value: 100, suffix: '%', label: 'TypeScript Coverage' },
+];
+
+const timeline = [
   {
-    title: 'Portfolio Website',
-    img: '/website.png',
-    desc: 'The site you are on right now — built with React, Vite, TypeScript, and framer-motion.',
-    primaryButton: { text: 'View on GitHub', href: 'https://github.com/Mwoods30/Portfolio', external: true },
-    githubHref: 'https://github.com/Mwoods30/Portfolio',
-    tech: ['React', 'TypeScript', 'Vite', 'CSS'],
-    meta: '2024–25 · Personal',
+    period: '2024 – Present',
+    role: 'Software Engineering Student',
+    org: 'Rowan University CS Dept',
+    points: [
+      'Built React prototypes for campus research initiatives',
+      'Introduced component libraries cutting delivery time by 30%',
+      'Collaborated with faculty on accessible UI patterns',
+    ],
   },
   {
-    title: 'Wordle',
-    img: '/wordle.png',
-    desc: 'Interactive Wordle game with real-time word validation via API.',
-    primaryButton: { text: 'Play Wordle', onClick: () => navigate('/wordle') },
-    githubHref: 'https://github.com/Mwoods30/Portfolio',
-    tech: ['React', 'TypeScript', 'CSS', 'Game Logic'],
-    meta: '2024–25 · Game Design',
+    period: '2023 – 2024',
+    role: 'Freelance Full-Stack Developer',
+    org: 'Self-employed',
+    points: [
+      'Architected Firebase web apps with real-time data',
+      'Shipped ReelQuest, a production fishing game to Firebase hosting',
+      'Managed CI/CD pipelines with Netlify and GitHub Actions',
+    ],
   },
   {
-    title: 'Snake',
-    img: '/snake.png',
-    desc: 'Classic Snake game built on the Canvas API with smooth modern controls.',
-    primaryButton: { text: 'Play Snake', onClick: () => navigate('/snake') },
-    githubHref: 'https://github.com/Mwoods30/Portfolio',
-    tech: ['React', 'Canvas API', 'TypeScript', 'Game Dev'],
-    meta: '2023–24 · Canvas',
-  },
-  {
-    title: 'Tic Tac Toe',
-    img: '/tictactoeimg.png',
-    desc: 'Play against a friend or a minimax-powered computer AI.',
-    primaryButton: { text: 'Play Tic Tac Toe', onClick: () => navigate('/tictactoe') },
-    githubHref: 'https://github.com/Mwoods30/Portfolio',
-    tech: ['React', 'AI Logic', 'TypeScript', 'Strategy'],
-    meta: '2023–24 · AI Logic',
-  },
-  {
-    title: 'ReelQuest',
-    img: '/ReelQuest.png',
-    desc: 'React fishing game with multiple levels, Firebase backend, and API integration.',
-    primaryButton: { text: 'Try it out', href: 'https://reelquest-fishing.web.app', external: true },
-    githubHref: 'https://github.com/Mwoods30',
-    tech: ['React', 'Firebase', 'JavaScript', 'CSS', 'API'],
-    meta: '2025 · Firebase',
+    period: '2022 – Present',
+    role: 'B.S. Computer Science',
+    org: 'Rowan University',
+    points: [
+      'Core coursework: algorithms, software engineering, UX design',
+      'Led peer coding sessions focused on React and game logic',
+      'Active in hackathons and open-source contributions',
+    ],
   },
 ];
 
-const heroHighlights = [
-  { value: '5+', label: 'Interactive projects launched' },
-  { value: '3', label: 'Years crafting digital experiences' },
-  { value: '∞', label: 'Curiosity for polished UX' },
+const resumeHighlights = [
+  {
+    title: 'What I Focus On',
+    points: [
+      'Building responsive React interfaces with polished UX',
+      'Designing reusable component systems and style guides',
+      'Collaborating with cross-functional teammates using Git workflows',
+    ],
+  },
+  {
+    title: 'Recent Wins',
+    points: [
+      'Launched interactive games (Wordle, Snake, Tic Tac Toe) in React + TypeScript',
+      'Shipped ReelQuest, a Firebase-backed fishing experience',
+      'Migrated portfolio from CRA to Vite with full TypeScript coverage',
+    ],
+  },
 ];
 
-const skills = [
+const resumeTags = ['React 19', 'TypeScript', 'Firebase', 'REST APIs', 'UI/UX'];
+
+const skillCards = [
   {
     id: 'frontend',
     icon: '⚛️',
@@ -893,109 +1577,144 @@ const skills = [
   },
 ];
 
-const resumeHighlights = [
-  {
-    title: 'What I Focus On',
-    points: [
-      'Building responsive React interfaces with polished UX',
-      'Designing reusable component systems and style guides',
-      'Collaborating with cross-functional teammates using Git workflows',
-    ],
-  },
-  {
-    title: 'Recent Wins',
-    points: [
-      'Launched interactive games (Wordle, Snake, Tic Tac Toe) in React + TypeScript',
-      'Shipped ReelQuest, a Firebase-backed fishing experience',
-      'Migrated portfolio from CRA to Vite with full TypeScript coverage',
-    ],
-  },
-];
+// ─── Inline SVGs for contact ───────────────────────────────────────────────────
 
-const resumeFactTags = ['React 19', 'TypeScript', 'Firebase', 'REST APIs', 'UI/UX'];
+const GithubIcon = () => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 .5C5.73.5.76 5.48.76 11.74c0 4.9 3.16 9.05 7.55 10.52.55.1.75-.24.75-.53 0-.26-.01-1.12-.02-2.03-3.07.67-3.72-1.47-3.72-1.47-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.54 1.18 3.15.9.1-.7.38-1.18.69-1.45-2.45-.28-5.02-1.23-5.02-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13A10.5 10.5 0 0112 6.8c.93.004 1.86.13 2.73.38 2.1-1.42 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.78 1.13 1.77 1.13 2.98 0 4.26-2.58 5.2-5.04 5.48.39.34.73 1.01.73 2.03 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53 4.39-1.47 7.55-5.62 7.55-10.52C23.24 5.48 18.27.5 12 .5z" />
+  </svg>
+);
 
-const journeyTimeline = [
-  {
-    period: '2024 – Present',
-    title: 'Software Engineering Student',
-    org: 'Rowan University CS Department',
-    points: [
-      'Built React prototypes to support campus research initiatives',
-      'Introduced component libraries that cut feature delivery time by 30%',
-      'Collaborated with faculty to produce accessible UI patterns',
-    ],
-  },
-  {
-    period: '2023 – 2024',
-    title: 'Full-Stack Project Lead',
-    org: 'Freelance',
-    points: [
-      'Architected Firebase-backed web apps with real-time data updates',
-      'Shipped responsive game experiences (Wordle, Snake, Tic Tac Toe)',
-      'Managed deployment pipelines with Netlify and GitHub Actions',
-    ],
-  },
-  {
-    period: '2022 – Present',
-    title: 'B.S. Computer Science',
-    org: 'Rowan University',
-    points: [
-      'Coursework across algorithms, software engineering, and UX',
-      'Led peer coding sessions focused on React and game logic fundamentals',
-      'Continuously learning through hackathons and open-source contributions',
-    ],
-  },
-];
+const LinkedinIcon = () => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+);
+
+const EmailIcon = () => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+  </svg>
+);
+
+const LeetcodeIcon = () => (
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 1.271 1.818l4.277 4.193.039.038c2.248 2.165 5.852 2.133 8.063-.074l2.396-2.392c.54-.54.54-1.414.003-1.955a1.378 1.378 0 0 0-1.951-.003l-2.396 2.392a3.021 3.021 0 0 1-4.205.038l-.02-.019-4.276-4.193c-.652-.64-.972-1.469-.948-2.263a2.68 2.68 0 0 1 .066-.523 2.545 2.545 0 0 1 .619-1.164L9.13 8.114c1.058-1.134 3.204-1.27 4.43-.278l3.501 2.831c.593.48 1.461.387 1.94-.207a1.384 1.384 0 0 0-.207-1.943l-3.5-2.831c-.8-.647-1.766-1.045-2.774-1.202l2.015-2.158A1.384 1.384 0 0 0 13.483 0zm-2.866 12.815a1.38 1.38 0 0 0-1.38 1.382 1.38 1.38 0 0 0 1.38 1.382H20.79a1.38 1.38 0 0 0 1.38-1.382 1.38 1.38 0 0 0-1.38-1.382z" />
+  </svg>
+);
+
+const ArrowIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4.5M9.5 2.5V7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
 
 const contactChannels = [
   {
-    title: "Let's build together",
-    detail: 'Pitch a project or product idea and we can collaborate on a roadmap.',
-    action: 'Email Matthew',
-    href: 'mailto:mattwoods301@gmail.com',
-    icon: '📬',
+    title: "Email Me",
+    desc: "Pitch a project or product idea and we can collaborate on a roadmap.",
+    action: "mattwoods301@gmail.com",
+    href: "mailto:mattwoods301@gmail.com",
+    Icon: EmailIcon,
   },
   {
-    title: 'Connect on LinkedIn',
-    detail: 'Follow my journey, explore posts, and see what I am currently learning.',
-    action: 'Message on LinkedIn',
-    href: 'https://www.linkedin.com/in/matthew-woods-18b52526b',
-    icon: '💼',
+    title: "LinkedIn",
+    desc: "Follow my journey, explore posts, and see what I am currently learning.",
+    action: "matthew-woods-18b52526b",
+    href: "https://www.linkedin.com/in/matthew-woods-18b52526b",
+    Icon: LinkedinIcon,
   },
   {
-    title: 'Explore the code',
-    detail: 'Browse repos for games, UI experiments, and full-stack prototypes.',
-    action: 'Visit GitHub',
-    href: 'https://github.com/Mwoods30',
-    icon: '🔗',
+    title: "GitHub",
+    desc: "Browse repos for games, UI experiments, and full-stack prototypes.",
+    action: "Mwoods30",
+    href: "https://github.com/Mwoods30",
+    Icon: GithubIcon,
   },
   {
-    title: 'Challenge me',
-    detail: 'Check out my latest problem-solving stats and patterns on LeetCode.',
-    action: 'View LeetCode',
-    href: 'https://leetcode.com/Mattwoods301/',
-    icon: '⚡',
+    title: "LeetCode",
+    desc: "Check out my latest problem-solving stats and patterns.",
+    action: "Mattwoods301",
+    href: "https://leetcode.com/Mattwoods301/",
+    Icon: LeetcodeIcon,
   },
 ];
 
-const scrollToSection = (sectionId: string) => {
-  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-};
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, delay: i * 0.1, ease: [0.25, 0.1, 0.25, 1] },
-  }),
-};
+// ─── Main component ───────────────────────────────────────────────────────────
 
 function Home() {
-  const [selectedSkill, setSelectedSkill] = useState<(typeof skills)[0] | null>(null);
   const navigate = useNavigate();
-  const projects = createProjects(navigate);
+  const role = useTypingAnimation(ROLES);
+  const [selectedSkill, setSelectedSkill] = useState<typeof skillCards[0] | null>(null);
 
+  // Projects defined inside component to access navigate
+  const projects = [
+    {
+      id: 'reelquest',
+      title: 'ReelQuest',
+      subtitle: 'Full-stack fishing game',
+      img: '/ReelQuest.png',
+      desc: 'A Firebase-backed fishing game with multiple levels, real-time leaderboards, and API integration. Built with React and deployed to production.',
+      primaryButton: { text: 'Live Demo', href: 'https://reelquest-fishing.web.app', external: true as const },
+      githubHref: 'https://github.com/Mwoods30',
+      tech: ['React', 'Firebase', 'JavaScript', 'CSS', 'REST API'],
+      year: '2025',
+      featured: true,
+    },
+    {
+      id: 'portfolio',
+      title: 'This Portfolio',
+      subtitle: 'Personal portfolio website',
+      img: '/website.png',
+      desc: 'Built from scratch with Vite, React 19, TypeScript, and framer-motion. Migrated from CRA, added React Router, dark/light mode, and full TypeScript coverage.',
+      primaryButton: { text: 'View Source', href: 'https://github.com/Mwoods30/Portfolio', external: true as const },
+      githubHref: 'https://github.com/Mwoods30/Portfolio',
+      tech: ['React', 'TypeScript', 'Vite', 'framer-motion'],
+      year: '2024–25',
+      featured: false,
+    },
+    {
+      id: 'wordle',
+      title: 'Wordle Lab',
+      subtitle: 'Word game with live API',
+      img: '/wordle.png',
+      desc: 'A Wordle clone with real-time word validation via API, puzzle numbering, and elegant color-coded feedback.',
+      primaryButton: { text: 'Play Now', onClick: () => navigate('/wordle'), external: false as const },
+      githubHref: 'https://github.com/Mwoods30/Portfolio',
+      tech: ['React', 'TypeScript', 'REST API'],
+      year: '2024–25',
+      featured: false,
+    },
+    {
+      id: 'snake',
+      title: 'Snake',
+      subtitle: 'Canvas-based game',
+      img: '/snake.png',
+      desc: 'Classic Snake built on the HTML5 Canvas API with touch support and smooth controls.',
+      primaryButton: { text: 'Play Now', onClick: () => navigate('/snake'), external: false as const },
+      githubHref: 'https://github.com/Mwoods30/Portfolio',
+      tech: ['React', 'Canvas API', 'TypeScript'],
+      year: '2023–24',
+      featured: false,
+    },
+    {
+      id: 'tictactoe',
+      title: 'Tic Tac Toe',
+      subtitle: 'AI-powered strategy game',
+      img: '/tictactoeimg.png',
+      desc: 'Play against a friend or challenge a minimax AI. Smart blocking, winning detection, and clean UI.',
+      primaryButton: { text: 'Play Now', onClick: () => navigate('/tictactoe'), external: false as const },
+      githubHref: 'https://github.com/Mwoods30/Portfolio',
+      tech: ['React', 'TypeScript', 'AI Logic'],
+      year: '2023–24',
+      featured: false,
+    },
+  ];
+
+  const featuredProject = projects.find(p => p.featured)!;
+  const gridProjects = projects.filter(p => !p.featured);
+
+  // Escape key + body lock for skill modal
   useEffect(() => {
     if (!selectedSkill) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1010,161 +1729,419 @@ function Home() {
     };
   }, [selectedSkill]);
 
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
-    <div>
+    <div className="home">
       <Helmet>
         <title>Matthew Woods | Portfolio</title>
-        <meta name="description" content="Matthew Woods — Software Developer & CS student at Rowan University." />
+        <meta name="description" content="Matthew Woods — Software Developer & CS student at Rowan University. Building React apps, games, and interactive experiences." />
       </Helmet>
-      <style>{spaStyles}</style>
-      <div className="bg-animation" />
+      <style>{homeStyles}</style>
 
-      {/* Hero */}
-      <section id="home" className="hero">
-        <motion.div
-          className="hero-content"
-          initial="hidden"
-          animate="visible"
-          variants={fadeUp}
-        >
-          <div className="hero-meta">
-            <h1>Matthew Woods</h1>
-            <p className="hero-subtitle">Software developer & CS student at Rowan University</p>
-            <p className="hero-description">
-              I build immersive web experiences and interactive games backed by clean architecture, reusable components,
-              and user-centered design. Every project is an opportunity to blend accessibility, performance, and joy.
-            </p>
-            <div className="cta-buttons">
-              <button className="btn btn-primary" onClick={() => scrollToSection('portfolio')}>
-                <span>📁</span> Explore Projects
+      {/* ── Hero ── */}
+      <section id="home" className="hero-section">
+        <div className="hero-bg" />
+        <div className="hero-orb hero-orb-1" />
+        <div className="hero-orb hero-orb-2" />
+
+        <div className="hero-inner">
+          {/* Left: text */}
+          <motion.div
+            className="hero-text"
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+          >
+            <motion.div variants={fadeUp}>
+              <div className="available-badge">
+                <span className="status-dot" />
+                Available for opportunities
+              </div>
+            </motion.div>
+
+            <motion.h1 className="hero-h1" variants={fadeUp} custom={1}>
+              Matthew<br />Woods
+            </motion.h1>
+
+            <motion.div className="hero-role" variants={fadeUp} custom={2}>
+              <span className="role-text">{role}</span>
+              <span className="cursor">|</span>
+            </motion.div>
+
+            <motion.p className="hero-bio" variants={fadeUp} custom={3}>
+              I build responsive web applications and interactive experiences with React, TypeScript, and Firebase.
+              CS student at Rowan University — passionate about clean architecture, accessible design, and delightful UX.
+            </motion.p>
+
+            <motion.div className="hero-cta" variants={fadeUp} custom={4}>
+              <button className="btn-primary" onClick={() => scrollTo('portfolio')}>
+                View Projects
               </button>
-              <button className="btn btn-secondary" onClick={() => scrollToSection('contact')}>
-                <span>💬</span> Start a Conversation
+              <button className="btn-outline" onClick={() => scrollTo('contact')}>
+                Get in Touch
               </button>
+            </motion.div>
+          </motion.div>
+
+          {/* Right: code window */}
+          <motion.div
+            className="hero-code"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <div className="code-window">
+              <div className="code-window-bar">
+                <div className="dots">
+                  <span /><span /><span />
+                </div>
+                <span className="code-window-title">developer.ts</span>
+              </div>
+              <pre className="code-body">{/* prettier-ignore */
+                <><span className="code-kw">const</span>{' '}<span className="code-prop">developer</span>{' '}<span className="code-punct">= {'{'}</span>{'\n'}
+<span className="code-prop">  name</span><span className="code-punct">:</span>{' '}<span className="code-str">"Matthew Woods"</span><span className="code-punct">,</span>{'\n'}
+<span className="code-prop">  role</span><span className="code-punct">:</span>{' '}<span className="code-str">"Software Developer"</span><span className="code-punct">,</span>{'\n'}
+<span className="code-prop">  stack</span><span className="code-punct">:</span>{' '}<span className="code-arr">[</span><span className="code-str">"React"</span><span className="code-punct">,</span>{' '}<span className="code-str">"TypeScript"</span><span className="code-punct">,</span>{' '}<span className="code-str">"Firebase"</span><span className="code-arr">]</span><span className="code-punct">,</span>{'\n'}
+<span className="code-prop">  university</span><span className="code-punct">:</span>{' '}<span className="code-str">"Rowan University"</span><span className="code-punct">,</span>{'\n'}
+<span className="code-prop">  available</span><span className="code-punct">:</span>{' '}<span className="code-val-t">true</span><span className="code-punct">,</span>{'\n'}
+<span className="code-prop">  contact</span><span className="code-punct">:</span>{' '}<span className="code-email">"mattwoods301@gmail.com"</span><span className="code-punct">,</span>{'\n'}
+<span className="code-punct">{'}'}</span><span className="code-punct">;</span>{'\n'}
+{'\n'}
+<span className="code-comment">// Currently: building cool things</span>{'\n'}
+<span className="code-kw">export</span>{' '}<span className="code-kw">default</span>{' '}<span className="code-prop">developer</span><span className="code-punct">;</span></>
+              }</pre>
             </div>
-          </div>
-          <div className="hero-stats">
-            {heroHighlights.map((item, i) => (
-              <motion.div
-                key={item.label}
-                className="stat-card"
-                custom={i}
-                initial="hidden"
-                animate="visible"
-                variants={fadeUp}
-              >
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </motion.div>
-            ))}
-          </div>
-          <div className="hero-image">
-            <img src="/Coding-Picture.jpeg" alt="Matthew Woods collaborating on code" />
-          </div>
+          </motion.div>
+        </div>
+
+        {/* Stats row */}
+        <motion.div
+          className="hero-stats"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          {stats.map((s, i) => (
+            <div className="stat-item" key={s.label}>
+              <strong><AnimatedCounter value={s.value} suffix={s.suffix} /></strong>
+              <span>{s.label}</span>
+            </div>
+          ))}
         </motion.div>
       </section>
 
-      {/* Portfolio */}
-      <section id="portfolio" className="section">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-          Featured Projects
-        </motion.h2>
-        <p className="section-subtitle">
-          A snapshot of the interfaces, games, and product experiments I have built to challenge myself and delight users.
-        </p>
-        <div className="portfolio-grid">
-          {projects.map((proj, idx) => (
+      {/* ── Projects ── */}
+      <section id="portfolio" className="projects-section">
+        <div className="projects-section-inner">
+          <motion.div
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>My Work</SectionLabel>
+            <h2 className="section-heading">Featured Projects</h2>
+            <p className="section-sub">
+              A collection of interfaces, games, and full-stack apps built to challenge myself and create delightful user experiences.
+            </p>
+          </motion.div>
+
+          {/* Featured card */}
+          <motion.div
+            className="proj-featured"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <div className="proj-featured-img">
+              <img src={featuredProject.img} alt={featuredProject.title} />
+            </div>
+            <div className="proj-featured-content">
+              <div className="proj-badge-row">
+                <span className="proj-featured-badge">Featured</span>
+                <span className="proj-year-badge">{featuredProject.year}</span>
+              </div>
+              <div>
+                <h3>{featuredProject.title}</h3>
+                <p className="proj-subtitle">{featuredProject.subtitle}</p>
+              </div>
+              <p>{featuredProject.desc}</p>
+              <div className="proj-tech-row">
+                {featuredProject.tech.map(t => <span className="tech-pill" key={t}>{t}</span>)}
+              </div>
+              <div className="proj-actions">
+                <a
+                  href={featuredProject.primaryButton.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary"
+                >
+                  {featuredProject.primaryButton.text}
+                </a>
+                <a
+                  href={featuredProject.githubHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 .5C5.73.5.76 5.48.76 11.74c0 4.9 3.16 9.05 7.55 10.52.55.1.75-.24.75-.53 0-.26-.01-1.12-.02-2.03-3.07.67-3.72-1.47-3.72-1.47-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.54 1.18 3.15.9.1-.7.38-1.18.69-1.45-2.45-.28-5.02-1.23-5.02-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13A10.5 10.5 0 0112 6.8c.93.004 1.86.13 2.73.38 2.1-1.42 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.78 1.13 1.77 1.13 2.98 0 4.26-2.58 5.2-5.04 5.48.39.34.73 1.01.73 2.03 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53 4.39-1.47 7.55-5.62 7.55-10.52C23.24 5.48 18.27.5 12 .5z" />
+                  </svg>
+                  GitHub
+                </a>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Grid */}
+          <div className="proj-grid">
+            {gridProjects.map((proj, idx) => (
+              <motion.div
+                key={proj.id}
+                className="proj-card"
+                custom={idx % 3}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+              >
+                <div className="proj-card-img">
+                  <img src={proj.img} alt={proj.title} />
+                  <span className="proj-card-year">{proj.year}</span>
+                </div>
+                <div className="proj-card-body">
+                  <h3>{proj.title}</h3>
+                  <p className="proj-subtitle">{proj.subtitle}</p>
+                  <p>{proj.desc}</p>
+                  <div className="proj-tech-row">
+                    {proj.tech.map(t => <span className="tech-pill" key={t}>{t}</span>)}
+                  </div>
+                  <div className="proj-actions" style={{ marginTop: '0.5rem' }}>
+                    {proj.primaryButton.external ? (
+                      <a
+                        href={proj.primaryButton.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-primary"
+                        style={{ fontSize: '0.85rem', padding: '0.6rem 1.2rem' }}
+                      >
+                        {proj.primaryButton.text}
+                      </a>
+                    ) : (
+                      <button
+                        className="btn-primary"
+                        onClick={proj.primaryButton.onClick}
+                        style={{ fontSize: '0.85rem', padding: '0.6rem 1.2rem' }}
+                      >
+                        {proj.primaryButton.text}
+                      </button>
+                    )}
+                    <a
+                      href={proj.githubHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-ghost"
+                      style={{ fontSize: '0.85rem', padding: '0.6rem 1rem' }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 .5C5.73.5.76 5.48.76 11.74c0 4.9 3.16 9.05 7.55 10.52.55.1.75-.24.75-.53 0-.26-.01-1.12-.02-2.03-3.07.67-3.72-1.47-3.72-1.47-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.54 1.18 3.15.9.1-.7.38-1.18.69-1.45-2.45-.28-5.02-1.23-5.02-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13A10.5 10.5 0 0112 6.8c.93.004 1.86.13 2.73.38 2.1-1.42 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.78 1.13 1.77 1.13 2.98 0 4.26-2.58 5.2-5.04 5.48.39.34.73 1.01.73 2.03 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53 4.39-1.47 7.55-5.62 7.55-10.52C23.24 5.48 18.27.5 12 .5z" />
+                      </svg>
+                      GitHub
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Skills ── */}
+      <section id="skills" className="skills-section">
+        <div className="skills-section-inner">
+          <motion.div
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>Skills</SectionLabel>
+            <h2 className="section-heading">Tech Stack</h2>
+            <p className="section-sub">
+              From component-driven frontends to resilient backends — I focus on delivering experiences that are accessible,
+              maintainable, and a pleasure to use. Click any card for details.
+            </p>
+          </motion.div>
+
+          <div className="skills-layout">
+            {/* Left: categories */}
+            <div className="skills-stack">
+              {techStack.map((cat, ci) => (
+                <motion.div
+                  key={cat.category}
+                  className="skill-category"
+                  custom={ci}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={fadeUp}
+                >
+                  <div className="skill-category-header">
+                    <span className="skill-category-dot" style={{ background: cat.color }} />
+                    <span className="skill-category-label" style={{ color: cat.color }}>{cat.category}</span>
+                  </div>
+                  <div className="skill-pills">
+                    {cat.items.map(item => (
+                      <span className="skill-pill" key={item}>{item}</span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Clickable skill cards */}
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                custom={4}
+              >
+                <p style={{ color: 'var(--text-3)', fontSize: '0.8rem', marginBottom: '0.75rem', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.04em' }}>
+                  // Click to explore details
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                  {skillCards.map((skill) => (
+                    <button
+                      key={skill.id}
+                      onClick={() => setSelectedSkill(skill)}
+                      style={{
+                        background: 'var(--bg-2)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '12px',
+                        padding: '1rem',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.2s ease',
+                        fontFamily: "'Inter', sans-serif",
+                      }}
+                      onMouseEnter={e => {
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(99,102,241,0.5)';
+                        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={e => {
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
+                        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <div style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>{skill.icon}</div>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-1)', marginBottom: '0.25rem' }}>{skill.title}</div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-3)', lineHeight: 1.5 }}>{skill.summary.split(',')[0].trim()}…</div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Right: terminal */}
             <motion.div
-              key={proj.title}
-              className="project-card"
-              custom={idx % 3}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={fadeUp}
+              custom={2}
             >
-              <div className="project-image">
-                <img src={proj.img} alt={proj.title} />
-              </div>
-              <div className="project-meta">
-                <h3>{proj.title}</h3>
-                {proj.meta && <span>{proj.meta}</span>}
-              </div>
-              <p>{proj.desc}</p>
-              <div className="tech-stack">
-                {proj.tech.map((tech) => (
-                  <span key={tech} className="tech-tag">{tech}</span>
-                ))}
-              </div>
-              <div className="project-actions">
-                {proj.primaryButton.external ? (
-                  <a href={proj.primaryButton.href} target="_blank" rel="noreferrer" className="btn btn-primary">
-                    {proj.primaryButton.text}
-                  </a>
-                ) : (
-                  <button onClick={proj.primaryButton.onClick} className="btn btn-primary">
-                    {proj.primaryButton.text}
-                  </button>
-                )}
-                {proj.githubHref && (
-                  <a href={proj.githubHref} target="_blank" rel="noreferrer" className="btn-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 .5C5.73.5.76 5.48.76 11.74c0 4.9 3.16 9.05 7.55 10.52.55.1.75-.24.75-.53 0-.26-.01-1.12-.02-2.03-3.07.67-3.72-1.47-3.72-1.47-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.54 1.18 3.15.9.1-.7.38-1.18.69-1.45-2.45-.28-5.02-1.23-5.02-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13A10.5 10.5 0 0112 6.8c.93.004 1.86.13 2.73.38 2.1-1.42 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.78 1.13 1.77 1.13 2.98 0 4.26-2.58 5.2-5.04 5.48.39.34.73 1.01.73 2.03 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53 4.39-1.47 7.55-5.62 7.55-10.52C23.24 5.48 18.27.5 12 .5z" />
-                    </svg>
-                    GitHub
-                  </a>
-                )}
+              <div className="terminal-window">
+                <div className="terminal-bar">
+                  <div className="dots">
+                    <span /><span /><span />
+                  </div>
+                  <span className="terminal-title">terminal</span>
+                </div>
+                <div className="terminal-body">
+                  <div>
+                    <span className="t-prompt">~</span>{' '}
+                    <span className="t-cmd">whoami</span>
+                  </div>
+                  <div className="t-out">
+                    <span className="t-highlight">Matthew Woods</span>
+                    {' '}— Software Developer
+                  </div>
+                  <span className="t-blank" />
+                  <div>
+                    <span className="t-prompt">~</span>{' '}
+                    <span className="t-cmd">cat skills.json</span>
+                  </div>
+                  <div className="t-out">
+                    {`{`}
+                  </div>
+                  <div className="t-out">
+                    {'  '}<span className="t-highlight">"frontend"</span>{': '}
+                    <span className="t-string">["React", "TypeScript", "Vite"]</span>{','}
+                  </div>
+                  <div className="t-out">
+                    {'  '}<span className="t-highlight">"backend"</span>{': '}
+                    <span className="t-string">["Firebase", "REST APIs"]</span>{','}
+                  </div>
+                  <div className="t-out">
+                    {'  '}<span className="t-highlight">"languages"</span>{': '}
+                    <span className="t-string">["JS", "TS", "Java", "Python", "C#"]</span>
+                  </div>
+                  <div className="t-out">{`}`}</div>
+                  <span className="t-blank" />
+                  <div>
+                    <span className="t-prompt">~</span>{' '}
+                    <span className="t-cmd">git log --oneline -3</span>
+                  </div>
+                  <div className="t-out">
+                    <span style={{ color: '#f59e0b' }}>a41c282</span>
+                    {' '}Migrate portfolio to Vite + TypeScript
+                  </div>
+                  <div className="t-out">
+                    <span style={{ color: '#f59e0b' }}>e7f3b12</span>
+                    {' '}Add framer-motion scroll animations
+                  </div>
+                  <div className="t-out">
+                    <span style={{ color: '#f59e0b' }}>45d1a49</span>
+                    {' '}Ship ReelQuest to Firebase hosting
+                  </div>
+                  <span className="t-blank" />
+                  <div>
+                    <span className="t-prompt">~</span>{' '}
+                    <span className="t-cmd">npm run build</span>
+                  </div>
+                  <div className="t-out">
+                    <span className="t-highlight">✓</span>
+                    {' '}Build complete in <span style={{ color: '#f59e0b' }}>1.4s</span>
+                  </div>
+                  <div className="t-out">
+                    <span className="t-highlight">✓</span>
+                    {' '}0 TypeScript errors
+                  </div>
+                  <span className="t-blank" />
+                  <div>
+                    <span className="t-prompt">~</span>{' '}
+                    <span className="t-cmd" style={{ animation: 'blink 1s step-end infinite' }}>_</span>
+                  </div>
+                </div>
               </div>
             </motion.div>
-          ))}
+          </div>
         </div>
       </section>
 
-      {/* Skills */}
-      <section id="skills" className="section">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-          Skills & Expertise
-        </motion.h2>
-        <p className="section-subtitle">
-          From component-driven frontends to resilient backends, I focus on delivering experiences that are accessible,
-          maintainable, and a pleasure to use.
-        </p>
-        <div className="skills-grid">
-          {skills.map((skill, idx) => (
-            <motion.div
-              key={skill.id}
-              className={`skill-item${selectedSkill?.id === skill.id ? ' active' : ''}`}
-              role="button"
-              tabIndex={0}
-              custom={idx % 4}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              onClick={() => setSelectedSkill(skill)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelectedSkill(skill);
-                }
-              }}
-              aria-haspopup="dialog"
-              aria-expanded={selectedSkill?.id === skill.id}
-            >
-              <div className="skill-icon">{skill.icon}</div>
-              <h3>{skill.title}</h3>
-              <p>{skill.summary}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
+      {/* Skill modal */}
       {selectedSkill && (
         <motion.div
           className="skill-overlay"
           role="dialog"
           aria-modal="true"
-          aria-labelledby={`skill-${selectedSkill.id}-title`}
+          aria-labelledby={`skill-modal-${selectedSkill.id}`}
           onClick={() => setSelectedSkill(null)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -1172,19 +2149,24 @@ function Home() {
         >
           <motion.div
             className="skill-modal"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.28 }}
           >
-            <button type="button" className="close-button" onClick={() => setSelectedSkill(null)} aria-label="Close">
-              &times;
+            <button
+              type="button"
+              className="close-btn"
+              onClick={() => setSelectedSkill(null)}
+              aria-label="Close"
+            >
+              ✕
             </button>
-            <div className="skill-icon">{selectedSkill.icon}</div>
-            <h3 id={`skill-${selectedSkill.id}-title`}>{selectedSkill.title}</h3>
+            <span className="skill-modal-icon">{selectedSkill.icon}</span>
+            <h3 id={`skill-modal-${selectedSkill.id}`}>{selectedSkill.title}</h3>
             <p>{selectedSkill.summary}</p>
             <ul className="skill-details">
-              {selectedSkill.details.map((detail) => (
+              {selectedSkill.details.map(detail => (
                 <li key={detail}>{detail}</li>
               ))}
             </ul>
@@ -1192,120 +2174,183 @@ function Home() {
         </motion.div>
       )}
 
-      {/* Journey */}
-      <section id="journey" className="section">
-        <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-          Journey & Impact
-        </motion.h2>
-        <p className="section-subtitle">
-          Highlights from freelance collaborations and the classroom that shaped my engineering mindset.
-        </p>
-        <div className="journey-timeline">
-          {journeyTimeline.map((item, idx) => (
-            <motion.div
-              key={item.title}
-              className="timeline-card"
-              custom={idx}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-            >
-              <div className="timeline-meta">
-                <span>{item.period}</span>
-                <span>{item.org}</span>
-              </div>
-              <h3 className="timeline-title">{item.title}</h3>
-              <ul className="timeline-points">
-                {item.points.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
-            </motion.div>
-          ))}
+      {/* ── Journey / Timeline ── */}
+      <section id="journey" className="timeline-section">
+        <div className="timeline-section-inner">
+          <motion.div
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>Journey</SectionLabel>
+            <h2 className="section-heading">Experience & Education</h2>
+            <p className="section-sub">
+              Highlights from freelance work, research, and the coursework that shaped my engineering mindset.
+            </p>
+          </motion.div>
+
+          <div className="timeline">
+            {timeline.map((item, idx) => (
+              <motion.div
+                key={item.role}
+                className="timeline-item"
+                custom={idx}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+              >
+                <div className="timeline-dot" />
+                <div className="timeline-period">{item.period}</div>
+                <div className="timeline-card">
+                  <h3 className="timeline-role">{item.role}</h3>
+                  <p className="timeline-org">{item.org}</p>
+                  <ul className="timeline-points">
+                    {item.points.map(point => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Resume */}
-      <section id="resume" className="section">
-        <div className="resume-section">
-          <div className="resume-content">
-            <div className="resume-header">
-              <h2>Resume</h2>
+      {/* ── Resume ── */}
+      <section id="resume" className="resume-section">
+        <div className="resume-section-inner">
+          <motion.div
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>Resume</SectionLabel>
+          </motion.div>
+
+          <motion.div
+            className="resume-card"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <div className="resume-left">
+              <h2>Download My Resume</h2>
               <p className="resume-note">
-                Explore the experience, coursework, and project delivery behind the work highlighted above. My resume
-                dives deeper into leadership, collaboration, and the technical stack I apply every day.
+                Explore the experience, coursework, and project delivery behind the work highlighted above.
+                My resume dives deeper into leadership, collaboration, and the technical stack I apply every day.
               </p>
-              <div className="resume-badge-row">
-                {resumeFactTags.map((tag) => (
-                  <span key={tag} className="resume-badge">{tag}</span>
+              <div className="resume-tags">
+                {resumeTags.map(tag => (
+                  <span key={tag} className="resume-tag">{tag}</span>
                 ))}
               </div>
+              <div className="resume-btns">
+                <a
+                  href="/MatthewWoodsResume.pdf"
+                  className="btn-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: 2 }}>
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                  </svg>
+                  Download PDF
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/matthew-woods-18b52526b"
+                  className="btn-outline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View LinkedIn
+                </a>
+              </div>
+              <p style={{ color: 'var(--text-3)', fontSize: '0.82rem', marginTop: '0.5rem', fontFamily: "'JetBrains Mono', monospace" }}>
+                // Open to full-time & internship roles
+              </p>
             </div>
-            <div className="resume-highlight-grid">
-              {resumeHighlights.map((highlight) => (
+
+            <div className="resume-right">
+              {resumeHighlights.map(highlight => (
                 <div key={highlight.title} className="resume-highlight">
                   <h3>{highlight.title}</h3>
                   <ul>
-                    {highlight.points.map((point) => (
+                    {highlight.points.map(point => (
                       <li key={point}>{point}</li>
                     ))}
                   </ul>
                 </div>
               ))}
             </div>
-          </div>
-          <div className="resume-actions">
-            <a href="/MatthewWoodsResume.pdf" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-              <span>📄</span> Download Resume
-            </a>
-            <a
-              href="https://www.linkedin.com/in/matthew-woods-18b52526b"
-              className="btn btn-secondary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span>💼</span> View LinkedIn
-            </a>
-            <span className="resume-note">Let&apos;s connect to collaborate on software and UX-driven projects.</span>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Contact */}
-      <section id="contact" className="section">
-        <div className="contact-container">
-          <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            Let&apos;s Work Together
-          </motion.h2>
-          <p style={{ color: 'var(--text-secondary)', maxWidth: '560px', margin: '0 auto 2rem' }}>
-            Share your next challenge — whether it&apos;s a playful product, a data-rich dashboard, or a front-end redesign.
-          </p>
-          <div className="contact-grid">
-            {contactChannels.map((channel, idx) => (
-              <motion.div
-                key={channel.action}
-                className="contact-card"
+      {/* ── Contact ── */}
+      <section id="contact" className="contact-section">
+        <div className="contact-section-inner">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>Contact</SectionLabel>
+            <h2 className="contact-heading">Let&apos;s Work Together</h2>
+            <p className="contact-sub">
+              Open to new opportunities, collaborations, and interesting problems.
+              Whether it&apos;s a full-time role, freelance project, or just a chat — I&apos;d love to connect.
+            </p>
+            <div className="contact-cta-row">
+              <a href="mailto:mattwoods301@gmail.com" className="btn-primary">
+                Send an Email
+              </a>
+              <a
+                href="https://www.linkedin.com/in/matthew-woods-18b52526b"
+                className="btn-outline"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Connect on LinkedIn
+              </a>
+            </div>
+          </motion.div>
+
+          <div className="contact-channels">
+            {contactChannels.map((ch, idx) => (
+              <motion.a
+                key={ch.title}
+                href={ch.href}
+                target={ch.href.startsWith('http') ? '_blank' : undefined}
+                rel={ch.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                className="contact-channel"
                 custom={idx % 4}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={fadeUp}
               >
-                <strong>{channel.icon} {channel.title}</strong>
-                <span>{channel.detail}</span>
-                <a
-                  href={channel.href}
-                  className="contact-button"
-                  target={channel.href.startsWith('http') ? '_blank' : undefined}
-                  rel={channel.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                >
-                  {channel.action}
-                </a>
-              </motion.div>
+                <div className="contact-channel-icon">
+                  <ch.Icon />
+                </div>
+                <p className="contact-channel-title">{ch.title}</p>
+                <p className="contact-channel-desc">{ch.desc}</p>
+                <span className="contact-channel-link">
+                  {ch.action} <ArrowIcon />
+                </span>
+              </motion.a>
             ))}
           </div>
-          <p className="contact-note">Prefer a different platform? I am always open to a quick intro call or async brainstorm.</p>
+
+          <p className="contact-note">
+            Prefer a different platform? I&apos;m always open to a quick intro call or async brainstorm.
+          </p>
         </div>
       </section>
     </div>
