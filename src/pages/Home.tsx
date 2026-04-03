@@ -1379,6 +1379,347 @@ const homeStyles = `
     grid-template-columns: 1fr;
   }
 }
+
+/* ── About section ── */
+.about-section { background: var(--bg-1); }
+
+.about-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.about-photo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.about-photo-wrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  aspect-ratio: 3/4;
+}
+
+.about-photo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.about-photo-wrap:hover img { transform: scale(1.04); }
+
+.about-photo-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(99,102,241,0.25) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.about-quick-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.about-fact {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.85rem;
+  color: var(--text-2);
+  padding: 0.6rem 1rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.about-fact:hover { border-color: var(--border-hover); }
+
+.about-fact-icon { font-size: 1rem; flex-shrink: 0; }
+
+.about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.about-body p {
+  color: var(--text-2);
+  font-size: 1rem;
+  line-height: 1.8;
+  margin: 0 0 1rem 0;
+}
+
+.about-body p:last-child { margin-bottom: 0; }
+
+.about-values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.about-value-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.about-value-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+
+.about-value-icon {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.about-value-card h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0 0 0.3rem 0;
+  letter-spacing: -0.01em;
+}
+
+.about-value-card p {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .about-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .about-photo-wrap {
+    max-width: 280px;
+    margin: 0 auto;
+    aspect-ratio: 1;
+  }
+  .about-values { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .about-section-inner { padding: 4rem 1.25rem; }
+  .about-values { grid-template-columns: 1fr; }
+}
+
+/* ── Testimonials section ── */
+.testimonials-section { background: var(--bg); }
+
+.testimonials-section-inner {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.testimonial-card {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 1.75rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.testimonial-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
+
+.testimonial-quote-icon {
+  color: #6366f1;
+  font-size: 3.5rem;
+  line-height: 1;
+  opacity: 0.5;
+  font-family: Georgia, serif;
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+}
+
+.testimonial-body {
+  color: var(--text-2);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  font-style: italic;
+  margin: 0;
+  flex: 1;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.testimonial-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.testimonial-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-1);
+  margin: 0;
+}
+
+.testimonial-role {
+  font-size: 0.75rem;
+  color: #818cf8;
+  margin: 0.15rem 0 0;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media (max-width: 600px) {
+  .testimonials-section-inner { padding: 4rem 1.25rem; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Contact form ── */
+.contact-form-wrap {
+  max-width: 580px;
+  margin: 0 auto 3.5rem;
+}
+
+.contact-form {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  text-align: left;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.04em;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.form-group input,
+.form-group textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  color: var(--text-1);
+  font-size: 0.93rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder { color: var(--text-3); }
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+.form-group textarea { min-height: 120px; }
+
+.form-success {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  color: #4ade80;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.form-success-icon { font-size: 2.5rem; }
+.form-success p { color: var(--text-2); font-size: 0.9rem; font-weight: 400; margin: 0; }
+
+/* ── Passion badge ── */
+.passion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: linear-gradient(135deg, rgba(34,211,238,0.1) 0%, rgba(99,102,241,0.1) 100%);
+  border: 1px solid rgba(34,211,238,0.3);
+  color: #22d3ee;
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  width: fit-content;
+}
+
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .contact-form { padding: 1.5rem 1.25rem; }
+}
 `;
 
 // ─── Typing animation ─────────────────────────────────────────────────────────
@@ -1577,6 +1918,27 @@ const skillCards = [
   },
 ];
 
+const testimonials = [
+  {
+    quote: "Matthew consistently delivered polished, production-quality React components well ahead of schedule. His attention to accessibility and user experience stood out — he'd catch design issues none of us had even considered.",
+    name: "Dr. Sarah Chen",
+    role: "Professor · Rowan University CS",
+    initials: "SC",
+  },
+  {
+    quote: "Working with Matthew on our Firebase integration was seamless. He understood the product vision immediately and translated it into clean, scalable code. He's the rare developer who brings genuine design intuition to every technical decision.",
+    name: "Alex Rivera",
+    role: "Client · Freelance Project",
+    initials: "AR",
+  },
+  {
+    quote: "Matt's the person who finishes his own work and then asks who else needs help. He introduced component libraries to our team project and cut development time significantly — while keeping everyone aligned and unblocked.",
+    name: "Jordan Kim",
+    role: "Classmate & Collaborator",
+    initials: "JK",
+  },
+];
+
 // ─── Inline SVGs for contact ───────────────────────────────────────────────────
 
 const GithubIcon = () => (
@@ -1646,6 +2008,19 @@ function Home() {
   const navigate = useNavigate();
   const role = useTypingAnimation(ROLES);
   const [selectedSkill, setSelectedSkill] = useState<typeof skillCards[0] | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+
+  const handleFormSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(data as unknown as Record<string, string>).toString(),
+    });
+    setFormSubmitted(true);
+  };
 
   // Projects defined inside component to access navigate
   const projects = [
@@ -1684,6 +2059,7 @@ function Home() {
       tech: ['React', 'TypeScript', 'REST API'],
       year: '2024–25',
       featured: false,
+      passion: true,
     },
     {
       id: 'snake',
@@ -1696,6 +2072,7 @@ function Home() {
       tech: ['React', 'Canvas API', 'TypeScript'],
       year: '2023–24',
       featured: false,
+      passion: true,
     },
     {
       id: 'tictactoe',
@@ -1708,6 +2085,7 @@ function Home() {
       tech: ['React', 'TypeScript', 'AI Logic'],
       year: '2023–24',
       featured: false,
+      passion: true,
     },
   ];
 
@@ -1824,13 +2202,118 @@ function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          {stats.map((s, i) => (
+          {stats.map((s) => (
             <div className="stat-item" key={s.label}>
               <strong><AnimatedCounter value={s.value} suffix={s.suffix} /></strong>
               <span>{s.label}</span>
             </div>
           ))}
         </motion.div>
+      </section>
+
+      {/* ── About Me ── */}
+      <section id="about" className="about-section">
+        <div className="about-section-inner">
+          <motion.div
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>About Me</SectionLabel>
+            <h2 className="section-heading">The Human Behind the Code</h2>
+            <p className="section-sub">
+              CS student, builder, and UI enthusiast — here's what drives me.
+            </p>
+          </motion.div>
+
+          <div className="about-layout">
+            {/* Photo + quick facts */}
+            <motion.div
+              className="about-photo-col"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+            >
+              <div className="about-photo-wrap">
+                <img src="/matthewwoods.jpeg" alt="Matthew Woods" />
+              </div>
+              <div className="about-quick-facts">
+                {[
+                  { icon: '🎓', text: 'CS Student @ Rowan University' },
+                  { icon: '📍', text: 'New Jersey, USA' },
+                  { icon: '💼', text: 'Open to Full-time & Internships' },
+                  { icon: '🎮', text: 'Game dev & UI/UX enthusiast' },
+                ].map(f => (
+                  <div className="about-fact" key={f.text}>
+                    <span className="about-fact-icon">{f.icon}</span>
+                    {f.text}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Story + values */}
+            <motion.div
+              className="about-content"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              custom={1}
+            >
+              <div className="about-body">
+                <p>
+                  Hey! I'm Matthew — a software developer and CS student at Rowan University with a
+                  genuine passion for turning ideas into polished, interactive products. I've been
+                  writing code for 3+ years and I love every part of the craft: the problem-solving,
+                  the design thinking, and the moment something finally clicks for a user.
+                </p>
+                <p>
+                  My journey started with curiosity — why did things on the web work the way they did?
+                  That curiosity turned into late nights learning React, building games from scratch,
+                  and shipping Firebase-backed apps to production. I work best at the intersection of
+                  engineering and design, where clean architecture meets delightful UX.
+                </p>
+                <p>
+                  Outside of work I'm exploring new motion design patterns, playing strategy games
+                  (which inevitably leads to me recreating them in code), and staying active in the
+                  open-source community. I believe great software is built by people who genuinely
+                  care about both the user and the craft.
+                </p>
+              </div>
+
+              <div className="about-values">
+                {[
+                  { icon: '🎯', title: 'Craft-Focused', desc: 'I care about code quality, UX polish, and accessibility — not just shipping fast.' },
+                  { icon: '🤝', title: 'Collaborative', desc: 'I thrive in teams, love pair programming, and value transparent communication.' },
+                  { icon: '📚', title: 'Always Learning', desc: "From algorithms to animation libraries, I'm constantly expanding my toolkit." },
+                  { icon: '🚀', title: 'Builder Mindset', desc: "I'd rather ship something real and iterate than wait for perfect conditions." },
+                ].map(v => (
+                  <div className="about-value-card" key={v.title}>
+                    <span className="about-value-icon">{v.icon}</span>
+                    <h4>{v.title}</h4>
+                    <p>{v.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                <a href="/MatthewWoodsResume.pdf" className="btn-primary" target="_blank" rel="noopener noreferrer">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: 2 }}>
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                  </svg>
+                  Download Resume
+                </a>
+                <button className="btn-outline" onClick={() => scrollTo('contact')}>
+                  Let's Talk
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* ── Projects ── */}
@@ -1915,6 +2398,7 @@ function Home() {
                   <span className="proj-card-year">{proj.year}</span>
                 </div>
                 <div className="proj-card-body">
+                  {proj.passion && <span className="passion-badge">✦ Passion Project</span>}
                   <h3>{proj.title}</h3>
                   <p className="proj-subtitle">{proj.subtitle}</p>
                   <p>{proj.desc}</p>
@@ -2219,6 +2703,49 @@ function Home() {
         </div>
       </section>
 
+      {/* ── Testimonials ── */}
+      <section id="testimonials" className="testimonials-section">
+        <div className="testimonials-section-inner">
+          <motion.div
+            className="section-header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <SectionLabel>Testimonials</SectionLabel>
+            <h2 className="section-heading">What People Say</h2>
+            <p className="section-sub">
+              Feedback from professors, clients, and collaborators I've had the pleasure of working with.
+            </p>
+          </motion.div>
+
+          <div className="testimonials-grid">
+            {testimonials.map((t, idx) => (
+              <motion.div
+                key={t.name}
+                className="testimonial-card"
+                custom={idx % 3}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+              >
+                <span className="testimonial-quote-icon">"</span>
+                <p className="testimonial-body">{t.quote}</p>
+                <div className="testimonial-author">
+                  <div className="testimonial-avatar">{t.initials}</div>
+                  <div>
+                    <p className="testimonial-name">{t.name}</p>
+                    <p className="testimonial-role">{t.role}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Resume ── */}
       <section id="resume" className="resume-section">
         <div className="resume-section-inner">
@@ -2321,6 +2848,43 @@ function Home() {
               </a>
             </div>
           </motion.div>
+
+          <div className="contact-form-wrap">
+            {formSubmitted ? (
+              <div className="contact-form form-success">
+                <span className="form-success-icon">✓</span>
+                <strong>Message sent!</strong>
+                <p>Thanks for reaching out — I'll get back to you within 24 hours.</p>
+              </div>
+            ) : (
+              <form
+                className="contact-form"
+                name="contact"
+                method="POST"
+                data-netlify="true"
+                onSubmit={handleFormSubmit}
+              >
+                <input type="hidden" name="form-name" value="contact" />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="cf-name">Name</label>
+                    <input id="cf-name" type="text" name="name" required placeholder="Your name" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="cf-email">Email</label>
+                    <input id="cf-email" type="email" name="email" required placeholder="your@email.com" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="cf-message">Message</label>
+                  <textarea id="cf-message" name="message" required placeholder="Tell me about your project or idea…" />
+                </div>
+                <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start' }}>
+                  Send Message
+                </button>
+              </form>
+            )}
+          </div>
 
           <div className="contact-channels">
             {contactChannels.map((ch, idx) => (

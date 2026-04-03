@@ -156,6 +156,7 @@ const styles = `
 
 const NAV_LINKS = [
   { label: 'Home', section: 'home' },
+  { label: 'About', section: 'about' },
   { label: 'Projects', section: 'portfolio' },
   { label: 'Skills', section: 'skills' },
   { label: 'Resume', section: 'resume' },

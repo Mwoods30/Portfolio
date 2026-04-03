@@ -287,6 +287,7 @@ const footerStyles = `
 `;
 
 const quickLinks = [
+  { label: 'About', target: 'about' },
   { label: 'Projects', target: 'portfolio' },
   { label: 'Skills', target: 'skills' },
   { label: 'Journey', target: 'journey' },
