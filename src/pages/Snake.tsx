@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 const CANVAS_SIZE = 400;
 const SCALE = 20;
@@ -47,6 +48,7 @@ const snakeStyles = `
     line-height: 1.6;
     overflow-x: hidden;
     margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .snake-page {
@@ -56,6 +58,7 @@ const snakeStyles = `
     align-items: center;
     justify-content: center;
     background: var(--bg-dark);
+    transition: background 0.3s ease;
   }
 
   .snake-card {
@@ -69,6 +72,11 @@ const snakeStyles = `
     gap: 1.75rem;
     position: relative;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  [data-theme="light"] .snake-card {
+    box-shadow: 0 25px 65px rgba(0, 0, 0, 0.12);
   }
 
   .snake-content {
@@ -118,14 +126,26 @@ const snakeStyles = `
     display: inline-flex;
     gap: 0.35rem;
     align-items: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  [data-theme="light"] .snake-chip {
+    border-color: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.04);
   }
 
   .snake-chip strong { color: var(--text-primary); font-weight: 700; }
 
   .snake-chip.danger {
-    color: #ff8a8a;
-    border-color: rgba(255, 138, 138, 0.4);
-    background: rgba(255, 68, 68, 0.08);
+    color: #e03030;
+    border-color: rgba(224, 48, 48, 0.4);
+    background: rgba(224, 48, 48, 0.08);
+  }
+
+  [data-theme="light"] .snake-chip.danger {
+    color: #b91c1c;
+    border-color: rgba(185, 28, 28, 0.3);
+    background: rgba(185, 28, 28, 0.07);
   }
 
   .snake-canvas-shell {
@@ -133,6 +153,12 @@ const snakeStyles = `
     padding: 0.9rem;
     border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+
+  [data-theme="light"] .snake-canvas-shell {
+    background: rgba(100, 100, 180, 0.12);
+    border-color: rgba(0, 0, 0, 0.08);
   }
 
   .snake-canvas {
@@ -140,11 +166,15 @@ const snakeStyles = `
     width: 100%;
     max-width: 400px;
     aspect-ratio: 1 / 1;
-    background: rgba(8, 12, 30, 0.92);
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     image-rendering: pixelated;
     touch-action: none;
+    transition: border-color 0.3s ease;
+  }
+
+  [data-theme="light"] .snake-canvas {
+    border-color: rgba(0, 0, 0, 0.06);
   }
 
   .snake-status {
@@ -168,11 +198,16 @@ const snakeStyles = `
     font-size: 1rem;
     font-weight: 600;
     font-family: inherit;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
+  }
+
+  .snake-button:focus-visible {
+    outline: 2px solid #6366f1;
+    outline-offset: 3px;
   }
 
   .snake-button.primary {
@@ -192,6 +227,10 @@ const snakeStyles = `
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
+  [data-theme="light"] .snake-button.back {
+    border-color: rgba(0, 0, 0, 0.18);
+  }
+
   .snake-button.back:hover {
     border-color: #667eea;
     color: var(--text-primary);
@@ -201,6 +240,11 @@ const snakeStyles = `
     text-align: center;
     color: var(--text-secondary);
     font-size: 0.85rem;
+  }
+
+  @media (max-width: 480px) {
+    .snake-actions { flex-direction: column; }
+    .snake-button { width: 100%; }
   }
 `;
 
@@ -212,24 +256,27 @@ function Snake() {
   const [score, setScore] = useState(0);
   const [gameActive, setGameActive] = useState(true);
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
+    const isLight = theme === 'light';
+
     ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.fillStyle = isLight ? '#eeeeff' : 'rgba(8, 12, 30, 0.92)';
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.07)' : 'rgba(255, 255, 255, 0.08)';
     for (let i = 0; i <= GRID_COUNT; i++) {
       ctx.beginPath(); ctx.moveTo(i * SCALE, 0); ctx.lineTo(i * SCALE, CANVAS_SIZE); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(0, i * SCALE); ctx.lineTo(CANVAS_SIZE, i * SCALE); ctx.stroke();
     }
-    ctx.fillStyle = '#6ee7b7';
+    ctx.fillStyle = isLight ? '#16a34a' : '#6ee7b7';
     snake.forEach(seg => ctx.fillRect(seg.x * SCALE + 2, seg.y * SCALE + 2, SCALE - 4, SCALE - 4));
-    ctx.fillStyle = '#f97316';
+    ctx.fillStyle = isLight ? '#dc2626' : '#f97316';
     ctx.fillRect(food.x * SCALE + 3, food.y * SCALE + 3, SCALE - 6, SCALE - 6);
-  }, [snake, food]);
+  }, [snake, food, theme]);
 
   useEffect(() => {
     if (!gameActive) return;

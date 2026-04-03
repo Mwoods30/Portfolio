@@ -60,6 +60,7 @@ const tictactoeStyles = `
     line-height: 1.6;
     overflow-x: hidden;
     margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .ttt-page {
@@ -69,6 +70,7 @@ const tictactoeStyles = `
     align-items: center;
     justify-content: center;
     background: var(--bg-dark);
+    transition: background 0.3s ease;
   }
 
   .ttt-card {
@@ -82,6 +84,11 @@ const tictactoeStyles = `
     gap: 1.75rem;
     position: relative;
     overflow: hidden;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  [data-theme="light"] .ttt-card {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
   }
 
   .ttt-content {
@@ -161,7 +168,7 @@ const tictactoeStyles = `
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.18s ease, border 0.18s ease, box-shadow 0.2s ease;
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.2s ease, background-color 0.3s ease;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
     font-family: inherit;
   }
@@ -169,10 +176,16 @@ const tictactoeStyles = `
   [data-theme="light"] .ttt-cell {
     background: rgba(210, 210, 255, 0.7);
     border-color: rgba(0,0,0,0.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    color: #15803d;
   }
 
+  [data-theme="light"] .ttt-cell.is-o { color: #b91c1c; }
+
   .ttt-cell:hover { transform: translateY(-4px); border-color: rgba(89, 25, 154, 0.55); box-shadow: 0 18px 28px rgba(34, 72, 239, 0.35); }
+  [data-theme="light"] .ttt-cell:hover { box-shadow: 0 18px 28px rgba(34, 72, 239, 0.18); }
   .ttt-cell:disabled { cursor: not-allowed; opacity: 0.65; transform: none; box-shadow: none; }
+  .ttt-cell:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
   .ttt-cell.is-o { color: #fca5a5; }
 
   .ttt-status {
@@ -200,12 +213,14 @@ const tictactoeStyles = `
     font-size: 1rem;
     font-weight: 600;
     font-family: inherit;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
   }
+
+  .ttt-button:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
 
   .ttt-button.primary {
     background: var(--gradient);
@@ -219,6 +234,10 @@ const tictactoeStyles = `
     background: transparent;
     color: var(--text-secondary);
     border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  [data-theme="light"] .ttt-button.back {
+    border-color: rgba(0, 0, 0, 0.18);
   }
 
   .ttt-button.back:hover { border-color: #667eea; color: var(--text-primary); }
