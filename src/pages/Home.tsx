@@ -50,8 +50,8 @@ const homeStyles = `
 }
 
 @keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
-  50% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(2); opacity: 0; }
 }
 
 @keyframes orb-float-1 {
@@ -128,6 +128,7 @@ const homeStyles = `
   filter: blur(80px);
   pointer-events: none;
   z-index: 0;
+  will-change: transform;
 }
 
 .hero-orb-1 {
@@ -188,12 +189,22 @@ const homeStyles = `
 }
 
 .status-dot {
+  position: relative;
   width: 8px;
   height: 8px;
   background: #4ade80;
   border-radius: 50%;
-  animation: pulse-dot 2s ease-in-out infinite;
   flex-shrink: 0;
+}
+
+.status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: pulse-dot 2s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .hero-h1 {
@@ -2240,7 +2251,10 @@ function Home() {
               variants={fadeUp}
             >
               <div className="about-photo-wrap">
-                <img src="/matthewwoods.jpeg" alt="Matthew Woods" />
+                <picture>
+                  <source srcSet="/matthewwoods.webp" type="image/webp" />
+                  <img src="/matthewwoods.jpeg" alt="Matthew Woods" width="400" height="400" loading="lazy" />
+                </picture>
               </div>
               <div className="about-quick-facts">
                 {[
@@ -2344,7 +2358,10 @@ function Home() {
             variants={fadeUp}
           >
             <div className="proj-featured-img">
-              <img src={featuredProject.img} alt={featuredProject.title} />
+              <picture>
+                <source srcSet={featuredProject.img.replace(/\.(png|jpe?g)$/, '.webp')} type="image/webp" />
+                <img src={featuredProject.img} alt={featuredProject.title} width="1536" height="1024" fetchPriority="high" />
+              </picture>
             </div>
             <div className="proj-featured-content">
               <div className="proj-badge-row">
@@ -2396,7 +2413,10 @@ function Home() {
                 variants={fadeUp}
               >
                 <div className="proj-card-img">
-                  <img src={proj.img} alt={proj.title} />
+                  <picture>
+                    <source srcSet={proj.img.replace(/\.(png|jpe?g)$/, '.webp')} type="image/webp" />
+                    <img src={proj.img} alt={proj.title} width="1134" height="737" loading="lazy" />
+                  </picture>
                   <span className="proj-card-year">{proj.year}</span>
                 </div>
                 <div className="proj-card-body">
