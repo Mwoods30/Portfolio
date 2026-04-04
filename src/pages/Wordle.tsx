@@ -8,7 +8,6 @@ const WORDS = [
 ];
 
 const WORDLE_API_BASE = 'https://words.dev-apis.com';
-const API_TIMEOUT_MS = 4500;
 const VALIDATION_TIMEOUT_MS = 3000;
 
 interface WordResult { word: string; puzzleNumber: number | null }

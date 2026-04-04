@@ -264,9 +264,12 @@ function Tictactoe() {
   const isDraw = !winner && board.every(cell => cell);
 
   useEffect(() => {
-    if (winner) { setStatus(`Player ${winner} wins!`); if (gameActive) setGameActive(false); return; }
-    if (isDraw) { setStatus("It's a draw!"); if (gameActive) setGameActive(false); return; }
-    if (gameActive) setStatus(`It's ${isXTurn ? 'X' : 'O'}'s turn`);
+    const timer = setTimeout(() => {
+      if (winner) { setStatus(`Player ${winner} wins!`); if (gameActive) setGameActive(false); return; }
+      if (isDraw) { setStatus("It's a draw!"); if (gameActive) setGameActive(false); return; }
+      if (gameActive) setStatus(`It's ${isXTurn ? 'X' : 'O'}'s turn`);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [winner, isDraw, gameActive, isXTurn]);
 
   useEffect(() => {

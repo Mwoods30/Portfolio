@@ -1739,8 +1739,10 @@ function useTypingAnimation(words: string[], speed = 80, pause = 2000) {
     } else if (deleting && charIdx > 0) {
       timer = setTimeout(() => setCharIdx(c => c - 1), speed / 2);
     } else {
-      setDeleting(false);
-      setWordIdx(i => (i + 1) % words.length);
+      timer = setTimeout(() => {
+        setDeleting(false);
+        setWordIdx(i => (i + 1) % words.length);
+      }, speed / 2);
     }
     return () => clearTimeout(timer);
   }, [charIdx, deleting, wordIdx, words, speed, pause]);
