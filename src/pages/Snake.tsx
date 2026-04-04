@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../context/useTheme';
+import { useTheme } from '@/context/useTheme';
 
 const CANVAS_SIZE = 400;
 const SCALE = 20;

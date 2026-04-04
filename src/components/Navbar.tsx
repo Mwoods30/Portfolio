@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../context/useTheme';
+import { useTheme } from '@/context/useTheme';
 
 const styles = `
 .nav {

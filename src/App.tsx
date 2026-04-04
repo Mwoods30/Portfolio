@@ -4,6 +4,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import './App.css';
@@ -29,14 +30,16 @@ function App() {
         <ThemeProvider>
           <BrowserRouter>
             <Navbar />
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/wordle" element={<Wordle />} />
-                <Route path="/snake" element={<Snake />} />
-                <Route path="/tictactoe" element={<Tictactoe />} />
-              </Routes>
-            </Suspense>
+            <ErrorBoundary>
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/wordle" element={<Wordle />} />
+                  <Route path="/snake" element={<Snake />} />
+                  <Route path="/tictactoe" element={<Tictactoe />} />
+                </Routes>
+              </Suspense>
+            </ErrorBoundary>
             <Footer />
           </BrowserRouter>
         </ThemeProvider>

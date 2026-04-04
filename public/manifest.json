@@ -1,9 +1,21 @@
 {
   "short_name": "Matthew Woods",
   "name": "Matthew Woods - Portfolio",
-  
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "#6366f1",
-  "background_color": "#0f0f23"
+  "background_color": "#060914",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
