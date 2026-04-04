@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 
 const WORDS = [
   'apple', 'grape', 'lemon', 'peach', 'mango', 'berry', 'melon', 'plums', 'olive', 'spice',
@@ -255,47 +256,35 @@ function pickWord() { return WORDS[Math.floor(Math.random() * WORDS.length)]; }
 type ApiSource = 'loading-daily' | 'loading-random' | 'api-daily' | 'api-random' | 'fallback';
 
 function Wordle() {
-  const [secret, setSecret] = useState(() => pickWord());
   const [board, setBoard] = useState<string[][]>(() => Array.from({ length: 6 }, () => Array(5).fill('')));
   const [row, setRow] = useState(0);
   const [col, setCol] = useState(0);
   const [message, setMessage] = useState('');
   const [done, setDone] = useState(false);
-  const [loadingSecret, setLoadingSecret] = useState(true);
   const [checkingGuess, setCheckingGuess] = useState(false);
-  const [apiSource, setApiSource] = useState<ApiSource>('loading-daily');
-  const [puzzleNumber, setPuzzleNumber] = useState<number | null>(null);
+  const [randomSeed, setRandomSeed] = useState(0);
   const mountedRef = useRef(true);
   const navigate = useNavigate();
 
   useEffect(() => { return () => { mountedRef.current = false; }; }, []);
 
-  const loadSecret = useCallback(async (random = false) => {
-    setLoadingSecret(true);
-    setApiSource(random ? 'loading-random' : 'loading-daily');
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-    try {
-      const result = await fetchSecretFromApi({ random, signal: controller.signal });
-      if (!mountedRef.current) { window.clearTimeout(timeoutId); return; }
-      setSecret(result.word);
-      setPuzzleNumber(result.puzzleNumber);
-      setApiSource(random ? 'api-random' : 'api-daily');
-      setMessage(random ? 'New puzzle loaded - go again!' : '');
-    } catch (error: unknown) {
-      if (!mountedRef.current) { window.clearTimeout(timeoutId); return; }
-      setSecret(pickWord());
-      setPuzzleNumber(null);
-      setApiSource('fallback');
-      const name = error instanceof Error ? error.name : '';
-      setMessage(name === 'AbortError' ? 'Wordle API timed out - using built-in word list.' : 'Offline mode - using built-in word list.');
-    } finally {
-      window.clearTimeout(timeoutId);
-      if (mountedRef.current) setLoadingSecret(false);
-    }
-  }, []);
+  const isRandom = randomSeed > 0;
+  const { data: wordData, isLoading: loadingSecret, isError: wordFetchFailed } = useQuery({
+    queryKey: ['wordle-word', isRandom, randomSeed],
+    queryFn: ({ signal }) => fetchSecretFromApi({ random: isRandom, signal }),
+    staleTime: isRandom ? 0 : 1000 * 60 * 60,
+    retry: 1,
+  });
 
-  useEffect(() => { loadSecret(); }, [loadSecret]);
+  const secret = wordData?.word ?? pickWord();
+  const puzzleNumber = wordData?.puzzleNumber ?? null;
+  const apiSource: ApiSource = loadingSecret
+    ? (isRandom ? 'loading-random' : 'loading-daily')
+    : wordFetchFailed
+    ? 'fallback'
+    : isRandom
+    ? 'api-random'
+    : 'api-daily';
 
   const handleAdd = useCallback((letter: string) => {
     if (done || loadingSecret || checkingGuess || col >= 5 || row >= 6) return;
@@ -349,8 +338,8 @@ function Wordle() {
   const restart = useCallback(() => {
     setBoard(Array.from({ length: 6 }, () => Array(5).fill('')));
     setRow(0); setCol(0); setMessage(''); setDone(false); setCheckingGuess(false);
-    loadSecret(true);
-  }, [loadSecret]);
+    setRandomSeed(s => s + 1);
+  }, []);
 
   const computeColors = (rIdx: number): string[] => {
     const guess = board[rIdx];

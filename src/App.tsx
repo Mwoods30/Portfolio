@@ -1,30 +1,48 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { ThemeProvider } from './context/ThemeContext';
-import Home from './pages/Home';
-import Wordle from './pages/Wordle';
-import Snake from './pages/Snake';
-import Tictactoe from './pages/Tictactoe';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ThemeProvider } from '@/context/ThemeContext';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import './App.css';
+
+const Home = lazy(() => import('@/pages/Home'));
+const Wordle = lazy(() => import('@/pages/Wordle'));
+const Snake = lazy(() => import('@/pages/Snake'));
+const Tictactoe = lazy(() => import('@/pages/Tictactoe'));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 1,
+    },
+  },
+});
 
 function App() {
   return (
-    <HelmetProvider>
-      <ThemeProvider>
-        <BrowserRouter>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/wordle" element={<Wordle />} />
-            <Route path="/snake" element={<Snake />} />
-            <Route path="/tictactoe" element={<Tictactoe />} />
-          </Routes>
-          <Footer />
-        </BrowserRouter>
-      </ThemeProvider>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <HelmetProvider>
+        <ThemeProvider>
+          <BrowserRouter>
+            <Navbar />
+            <Suspense fallback={null}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/wordle" element={<Wordle />} />
+                <Route path="/snake" element={<Snake />} />
+                <Route path="/tictactoe" element={<Tictactoe />} />
+              </Routes>
+            </Suspense>
+            <Footer />
+          </BrowserRouter>
+        </ThemeProvider>
+      </HelmetProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 
