@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { motion, useInView } from 'framer-motion';
+import { motion, type Variants, useInView } from 'framer-motion';
 
 // ─── CSS ─────────────────────────────────────────────────────────────────────
 
@@ -1724,14 +1724,14 @@ const homeStyles = `
 
 // ─── Typing animation ─────────────────────────────────────────────────────────
 
-function useTypingAnimation(words, speed = 80, pause = 2000) {
+function useTypingAnimation(words: string[], speed = 80, pause = 2000) {
   const [wordIdx, setWordIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const current = words[wordIdx];
-    let timer;
+    let timer: ReturnType<typeof setTimeout>;
     if (!deleting && charIdx < current.length) {
       timer = setTimeout(() => setCharIdx(c => c + 1), speed);
     } else if (!deleting && charIdx === current.length) {
@@ -1750,8 +1750,8 @@ function useTypingAnimation(words, speed = 80, pause = 2000) {
 
 // ─── AnimatedCounter ─────────────────────────────────────────────────────────
 
-function AnimatedCounter({ value, suffix = '' }) {
-  const ref = useRef(null);
+function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true });
   const [count, setCount] = useState(0);
 
@@ -1772,7 +1772,7 @@ function AnimatedCounter({ value, suffix = '' }) {
 
 // ─── SectionLabel ─────────────────────────────────────────────────────────────
 
-function SectionLabel({ children }) {
+function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
@@ -1789,7 +1789,7 @@ function SectionLabel({ children }) {
 
 // ─── fadeUp variant ───────────────────────────────────────────────────────────
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({
     opacity: 1, y: 0,
@@ -1817,6 +1817,16 @@ const stats = [
 const timeline = [
   {
     period: '2024 – Present',
+    role: 'Software Engineering Student',
+    org: 'Rowan University CS Dept',
+    points: [
+      'Built React prototypes for campus research initiatives',
+      'Introduced component libraries cutting delivery time by 30%',
+      'Collaborated with faculty on accessible UI patterns',
+    ],
+  },
+  {
+    period: '2023 – 2024',
     role: 'Freelance Full-Stack Developer',
     org: 'Self-employed',
     points: [
@@ -1875,7 +1885,7 @@ const skillCards = [
     id: 'languages',
     icon: '🔧',
     title: 'Languages & Frameworks',
-    summary: 'Java, JavaScript, TypeScript, C#, HTML, CSS, Python, React, .NET, Vite, C++, Unity,',
+    summary: 'Java, JavaScript, TypeScript, C#, HTML, CSS, Python, React, .NET, Vite',
     details: [
       'Java and C# for strongly typed applications',
       'JavaScript/TypeScript and React for interactive UIs',
@@ -1907,7 +1917,7 @@ const skillCards = [
     ],
   },
 ];
-/**
+
 const testimonials = [
   {
     quote: "Matthew consistently delivered polished, production-quality React components well ahead of schedule. His attention to accessibility and user experience stood out — he'd catch design issues none of us had even considered.",
@@ -1928,7 +1938,6 @@ const testimonials = [
     initials: "JK",
   },
 ];
- */
 
 // ─── Inline SVGs for contact ───────────────────────────────────────────────────
 
@@ -1998,38 +2007,19 @@ const contactChannels = [
 function Home() {
   const navigate = useNavigate();
   const role = useTypingAnimation(ROLES);
-  const [selectedSkill, setSelectedSkill] = useState(null);
+  const [selectedSkill, setSelectedSkill] = useState<typeof skillCards[0] | null>(null);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formError, setFormError] = useState('');
-  const [formLoading, setFormLoading] = useState(false);
 
-  const handleFormSubmit = async (e) => {
+  const handleFormSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setFormError('');
-    setFormLoading(true);
     const form = e.currentTarget;
     const data = new FormData(form);
-    try {
-      const res = await fetch('/.netlify/functions/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.get('name'),
-          email: data.get('email'),
-          message: data.get('message'),
-        }),
-      });
-      if (!res.ok) {
-        const { error } = await res.json();
-        setFormError(error || 'Something went wrong. Please try again.');
-      } else {
-        setFormSubmitted(true);
-      }
-    } catch {
-      setFormError('Network error. Please try again.');
-    } finally {
-      setFormLoading(false);
-    }
+    await fetch('/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(data as unknown as Record<string, string>).toString(),
+    });
+    setFormSubmitted(true);
   };
 
   // Projects defined inside component to access navigate
@@ -2040,7 +2030,7 @@ function Home() {
       subtitle: 'Full-stack fishing game',
       img: '/ReelQuest.png',
       desc: 'A Firebase-backed fishing game with multiple levels, real-time leaderboards, and API integration. Built with React and deployed to production.',
-      primaryButton: { text: 'Live Demo', href: 'https://reelquest-fishing.web.app', external: true },
+      primaryButton: { text: 'Live Demo', href: 'https://reelquest-fishing.web.app', external: true as const },
       githubHref: 'https://github.com/Mwoods30',
       tech: ['React', 'Firebase', 'JavaScript', 'CSS', 'REST API'],
       year: '2025',
@@ -2052,7 +2042,7 @@ function Home() {
       subtitle: 'Personal portfolio website',
       img: '/website.png',
       desc: 'Built from scratch with Vite, React 19, TypeScript, and framer-motion. Migrated from CRA, added React Router, dark/light mode, and full TypeScript coverage.',
-      primaryButton: { text: 'View Source', href: 'https://github.com/Mwoods30/Portfolio', external: true },
+      primaryButton: { text: 'View Source', href: 'https://github.com/Mwoods30/Portfolio', external: true as const },
       githubHref: 'https://github.com/Mwoods30/Portfolio',
       tech: ['React', 'TypeScript', 'Vite', 'framer-motion'],
       year: '2024–25',
@@ -2064,7 +2054,7 @@ function Home() {
       subtitle: 'Word game with live API',
       img: '/wordle.png',
       desc: 'A Wordle clone with real-time word validation via API, puzzle numbering, and elegant color-coded feedback.',
-      primaryButton: { text: 'Play Now', onClick: () => navigate('/wordle'), external: false },
+      primaryButton: { text: 'Play Now', onClick: () => navigate('/wordle'), external: false as const },
       githubHref: 'https://github.com/Mwoods30/Portfolio',
       tech: ['React', 'TypeScript', 'REST API'],
       year: '2024–25',
@@ -2077,7 +2067,7 @@ function Home() {
       subtitle: 'Canvas-based game',
       img: '/snake.png',
       desc: 'Classic Snake built on the HTML5 Canvas API with touch support and smooth controls.',
-      primaryButton: { text: 'Play Now', onClick: () => navigate('/snake'), external: false },
+      primaryButton: { text: 'Play Now', onClick: () => navigate('/snake'), external: false as const },
       githubHref: 'https://github.com/Mwoods30/Portfolio',
       tech: ['React', 'Canvas API', 'TypeScript'],
       year: '2023–24',
@@ -2090,7 +2080,7 @@ function Home() {
       subtitle: 'AI-powered strategy game',
       img: '/tictactoeimg.png',
       desc: 'Play against a friend or challenge a minimax AI. Smart blocking, winning detection, and clean UI.',
-      primaryButton: { text: 'Play Now', onClick: () => navigate('/tictactoe'), external: false },
+      primaryButton: { text: 'Play Now', onClick: () => navigate('/tictactoe'), external: false as const },
       githubHref: 'https://github.com/Mwoods30/Portfolio',
       tech: ['React', 'TypeScript', 'AI Logic'],
       year: '2023–24',
@@ -2099,13 +2089,13 @@ function Home() {
     },
   ];
 
-  const featuredProject = projects.find(p => p.featured);
+  const featuredProject = projects.find(p => p.featured)!;
   const gridProjects = projects.filter(p => !p.featured);
 
   // Escape key + body lock for skill modal
   useEffect(() => {
     if (!selectedSkill) return;
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setSelectedSkill(null);
     };
     const original = document.body.style.overflow;
@@ -2117,7 +2107,7 @@ function Home() {
     };
   }, [selectedSkill]);
 
-  const scrollTo = (id) => {
+  const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -2525,12 +2515,12 @@ function Home() {
                         fontFamily: "'Inter', sans-serif",
                       }}
                       onMouseEnter={e => {
-                        e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)';
-                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(99,102,241,0.5)';
+                        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
                       }}
                       onMouseLeave={e => {
-                        e.currentTarget.style.borderColor = 'var(--border)';
-                        e.currentTarget.style.transform = 'translateY(0)';
+                        (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
+                        (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)';
                       }}
                     >
                       <div style={{ fontSize: '1.6rem', marginBottom: '0.35rem' }}>{skill.icon}</div>
@@ -2889,11 +2879,8 @@ function Home() {
                   <label htmlFor="cf-message">Message</label>
                   <textarea id="cf-message" name="message" required placeholder="Tell me about your project or idea…" />
                 </div>
-                {formError && (
-                  <p style={{ color: '#f87171', fontSize: '0.875rem', margin: '0' }}>{formError}</p>
-                )}
-                <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start' }} disabled={formLoading}>
-                  {formLoading ? 'Sending…' : 'Send Message'}
+                <button type="submit" className="btn-primary" style={{ alignSelf: 'flex-start' }}>
+                  Send Message
                 </button>
               </form>
             )}

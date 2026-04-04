@@ -1,6 +1,3 @@
-[functions]
-  directory = "netlify/functions"
-
 [build]
   # Directory to change to before starting a build
   base = "."
