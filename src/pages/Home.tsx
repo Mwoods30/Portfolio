@@ -2317,7 +2317,7 @@ function Home() {
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <a href="/Matthew Woods.pdf" className="btn-primary" target="_blank" rel="noopener noreferrer">
+                <a href="public/Matthew Woods.pdf" className="btn-primary" target="_blank" rel="noopener noreferrer">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: 2 }}>
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
                   </svg>
