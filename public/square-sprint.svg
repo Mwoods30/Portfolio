@@ -1,0 +1,23 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="760" fill="#070A16"/>
+  <rect x="0" y="0" width="1200" height="760" fill="url(#grid)" opacity="0.38"/>
+  <circle cx="190" cy="160" r="220" fill="#6366F1" opacity="0.22"/>
+  <circle cx="985" cy="610" r="280" fill="#A855F7" opacity="0.18"/>
+  <rect x="150" y="490" width="900" height="58" rx="10" fill="#222A44"/>
+  <rect x="260" y="384" width="156" height="156" rx="16" fill="url(#player)"/>
+  <rect x="580" y="298" width="120" height="120" rx="12" fill="#22D3EE"/>
+  <rect x="790" y="210" width="92" height="92" rx="10" fill="#4ADE80"/>
+  <rect x="150" y="548" width="900" height="8" fill="#6366F1"/>
+  <path d="M304 340H653C728.111 340 789 279.111 789 204V189" stroke="#818CF8" stroke-width="10" stroke-linecap="round" stroke-dasharray="20 28"/>
+  <text x="150" y="176" fill="#F1F5F9" font-family="Inter, Arial, sans-serif" font-size="80" font-weight="800">Square Sprint</text>
+  <text x="154" y="238" fill="#94A3B8" font-family="JetBrains Mono, monospace" font-size="30" font-weight="600">Unity WebGL Platformer</text>
+  <defs>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" stroke="#94A3B8" stroke-opacity="0.18"/>
+    </pattern>
+    <linearGradient id="player" x1="260" y1="384" x2="416" y2="540" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+</svg>

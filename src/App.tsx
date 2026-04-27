@@ -13,6 +13,7 @@ const Home = lazy(() => import('@/pages/Home'));
 const Wordle = lazy(() => import('@/pages/Wordle'));
 const Snake = lazy(() => import('@/pages/Snake'));
 const Tictactoe = lazy(() => import('@/pages/Tictactoe'));
+const SquareSprint = lazy(() => import('@/pages/SquareSprint'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +38,7 @@ function App() {
                   <Route path="/wordle" element={<Wordle />} />
                   <Route path="/snake" element={<Snake />} />
                   <Route path="/tictactoe" element={<Tictactoe />} />
+                  <Route path="/square-sprint" element={<SquareSprint />} />
                 </Routes>
               </Suspense>
             </ErrorBoundary>
