@@ -1812,7 +1812,7 @@ const fadeUp: Variants = {
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const ROLES = ['Software Developer', 'React Engineer', 'CS Student @ Rowan', 'Problem Solver', 'UI/UX Enthusiast'];
+const ROLES = ['Software Developer', 'React Engineer', 'B.S. CS Graduate', 'Problem Solver', 'UI/UX Enthusiast'];
 
 const techStack = [
   { category: 'Languages', color: '#6366f1', items: ['JavaScript', 'TypeScript', 'Java', 'Python', 'C#', 'HTML', 'CSS'] },
@@ -1829,13 +1829,12 @@ const stats = [
 
 const timeline = [
   {
-    period: '2024 – Present',
-    role: 'Software Engineering Student',
-    org: 'Rowan University CS Dept',
+    period: '2022 – 2026',
+    role: 'B.S. Computer Science Graduate',
+    org: 'Rowan University',
     points: [
-      'Built React prototypes for campus research initiatives',
-      'Introduced component libraries cutting delivery time by 30%',
-      'Collaborated with faculty on accessible UI patterns',
+      'Completed core coursework in algorithms, software engineering, AI, Operating Systems, and UX design',
+      'Led peer coding sessions focused on React and game logic',
     ],
   },
   {
@@ -1847,17 +1846,8 @@ const timeline = [
       'Shipped ReelQuest, a production fishing game to Firebase hosting',
       'Managed CI/CD pipelines with Netlify and GitHub Actions',
     ],
-  },
-  {
-    period: '2022 – Present',
-    role: 'B.S. Computer Science',
-    org: 'Rowan University',
-    points: [
-      'Core coursework: algorithms, software engineering, UX design',
-      'Led peer coding sessions focused on React and game logic',
-      'Active in hackathons and open-source contributions',
-    ],
-  },
+  }
+  
 ];
 
 const resumeHighlights = [
@@ -1922,9 +1912,9 @@ const skillCards = [
     id: 'education',
     icon: '🎓',
     title: 'Education',
-    summary: 'Computer Science at Rowan University',
+    summary: 'B.S. in Computer Science from Rowan University',
     details: [
-      'Computer Science studies at Rowan University',
+      'B.S. in Computer Science from Rowan University',
       'Hands-on projects in software development',
       'Continuous learning across emerging technologies',
     ],
@@ -2064,9 +2054,9 @@ function Home() {
     },
     {
       id: 'portfolio',
-      title: 'This Portfolio',
+      title: 'Portfolio',
       subtitle: 'Personal portfolio website',
-      img: '/website.png',
+      img: '/public/favicon.svg',
       desc: 'Built from scratch with Vite, React 19, TypeScript, and framer-motion. Migrated from CRA, added React Router, dark/light mode, and full TypeScript coverage.',
       primaryButton: { text: 'View Source', href: 'https://github.com/Mwoods30/Portfolio', external: true as const },
       githubHref: 'https://github.com/Mwoods30/Portfolio',
@@ -2141,7 +2131,7 @@ function Home() {
     <div className="home">
       <Helmet>
         <title>Matthew Woods | Portfolio</title>
-        <meta name="description" content="Matthew Woods — Software Developer & CS student at Rowan University. Building React apps, games, and interactive experiences." />
+        <meta name="description" content="Matthew Woods — B.S. Computer Science graduate building React apps and interactive experiences." />
       </Helmet>
       <style>{homeStyles}</style>
 
@@ -2177,7 +2167,7 @@ function Home() {
 
             <motion.p className="hero-bio" variants={fadeUp} custom={3}>
               I build responsive web applications and interactive experiences with React, TypeScript, and Firebase.
-              CS student at Rowan University — passionate about clean architecture, accessible design, and delightful UX.
+              B.S. Computer Science graduate from Rowan University — passionate about clean architecture, accessible design, and delightful UX.
             </motion.p>
 
             <motion.div className="hero-cta" variants={fadeUp} custom={4}>
@@ -2208,6 +2198,7 @@ function Home() {
                 <><span className="code-kw">const</span>{' '}<span className="code-prop">developer</span>{' '}<span className="code-punct">= {'{'}</span>{'\n'}
 <span className="code-prop">  name</span><span className="code-punct">:</span>{' '}<span className="code-str">"Matthew Woods"</span><span className="code-punct">,</span>{'\n'}
 <span className="code-prop">  role</span><span className="code-punct">:</span>{' '}<span className="code-str">"Software Developer"</span><span className="code-punct">,</span>{'\n'}
+<span className="code-prop">  education</span><span className="code-punct">:</span>{' '}<span className="code-str">"B.S. Computer Science"</span><span className="code-punct">,</span>{'\n'}
 <span className="code-prop">  stack</span><span className="code-punct">:</span>{' '}<span className="code-arr">[</span><span className="code-str">"React"</span><span className="code-punct">,</span>{' '}<span className="code-str">"TypeScript"</span><span className="code-punct">,</span>{' '}<span className="code-str">"Firebase"</span><span className="code-arr">]</span><span className="code-punct">,</span>{'\n'}
 <span className="code-prop">  university</span><span className="code-punct">:</span>{' '}<span className="code-str">"Rowan University"</span><span className="code-punct">,</span>{'\n'}
 <span className="code-prop">  available</span><span className="code-punct">:</span>{' '}<span className="code-val-t">true</span><span className="code-punct">,</span>{'\n'}
@@ -2250,7 +2241,7 @@ function Home() {
             <SectionLabel>About Me</SectionLabel>
             <h2 className="section-heading">The Human Behind the Code</h2>
             <p className="section-sub">
-              CS student, builder, and UI enthusiast — here's what drives me.
+              B.S. Computer Science graduate, builder, and UI enthusiast — here's what drives me.
             </p>
           </motion.div>
 
@@ -2271,10 +2262,10 @@ function Home() {
               </div>
               <div className="about-quick-facts">
                 {[
-                  { icon: '🎓', text: 'CS Student @ Rowan University' },
+                  { icon: '🎓', text: 'B.S. in Computer Science' },
                   { icon: '📍', text: 'New Jersey, USA' },
-                  { icon: '💼', text: 'Open to Full-time & Internships' },
-                  { icon: '🎮', text: 'Game dev & UI/UX enthusiast' },
+                  { icon: '💼', text: 'Open to Full-time Roles & Freelance Projects' },
+                  { icon: '🎮', text: 'Web Developer & UI/UX Enthusiast' },
                 ].map(f => (
                   <div className="about-fact" key={f.text}>
                     <span className="about-fact-icon">{f.icon}</span>
@@ -2295,7 +2286,7 @@ function Home() {
             >
               <div className="about-body">
                 <p>
-                  Hey! I'm Matthew — a software developer and CS student at Rowan University with a
+                  Hey! I'm Matthew — a software developer and B.S. Computer Science graduate from Rowan University with a
                   genuine passion for turning ideas into polished, interactive products. I've been
                   writing code for 3+ years and I love every part of the craft: the problem-solving,
                   the design thinking, and the moment something finally clicks for a user.
@@ -2316,10 +2307,10 @@ function Home() {
 
               <div className="about-values">
                 {[
-                  { icon: '🎯', title: 'Craft-Focused', desc: 'I care about code quality, UX polish, and accessibility — not just shipping fast.' },
-                  { icon: '🤝', title: 'Collaborative', desc: 'I thrive in teams, love pair programming, and value transparent communication.' },
-                  { icon: '📚', title: 'Always Learning', desc: "From algorithms to animation libraries, I'm constantly expanding my toolkit." },
-                  { icon: '🚀', title: 'Builder Mindset', desc: "I'd rather ship something real and iterate than wait for perfect conditions." },
+                  { icon: '', title: 'Craft-Focused', desc: 'I care about code quality, UX polish, and accessibility — not just shipping fast.' },
+                  { icon: '', title: 'Collaborative', desc: 'I thrive in teams, love pair programming, and value transparent communication.' },
+                  { icon: '', title: 'Always Learning', desc: "From algorithms to animation libraries, I'm constantly expanding my toolkit." },
+                  { icon: '', title: 'Builder Mindset', desc: "I'd rather ship something real and iterate than wait for perfect conditions." },
                 ].map(v => (
                   <div className="about-value-card" key={v.title}>
                     <span className="about-value-icon">{v.icon}</span>
@@ -2334,7 +2325,7 @@ function Home() {
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: 2 }}>
                     <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
                   </svg>
-                  Download Resume
+                  Download My Resume
                 </a>
                 <button className="btn-outline" onClick={() => scrollTo('contact')}>
                   Let's Talk
@@ -2738,49 +2729,8 @@ function Home() {
         </div>
       </section>
 
-      {/* ── Testimonials ── */}
-      <section id="testimonials" className="testimonials-section">
-        <div className="testimonials-section-inner">
-          <motion.div
-            className="section-header"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-          >
-            <SectionLabel>Testimonials</SectionLabel>
-            <h2 className="section-heading">What People Say</h2>
-            <p className="section-sub">
-              Feedback from professors, clients, and collaborators I've had the pleasure of working with.
-            </p>
-          </motion.div>
-
-          <div className="testimonials-grid">
-            {testimonials.map((t, idx) => (
-              <motion.div
-                key={t.name}
-                className="testimonial-card"
-                custom={idx % 3}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-              >
-                <span className="testimonial-quote-icon">"</span>
-                <p className="testimonial-body">{t.quote}</p>
-                <div className="testimonial-author">
-                  <div className="testimonial-avatar">{t.initials}</div>
-                  <div>
-                    <p className="testimonial-name">{t.name}</p>
-                    <p className="testimonial-role">{t.role}</p>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
+     
+      
       {/* ── Resume ── */}
       <section id="resume" className="resume-section">
         <div className="resume-section-inner">
@@ -2834,7 +2784,7 @@ function Home() {
                 </a>
               </div>
               <p style={{ color: 'var(--text-3)', fontSize: '0.82rem', marginTop: '0.5rem', fontFamily: "'JetBrains Mono', monospace" }}>
-                // Open to full-time & internship roles
+                // Open to full-time roles and freelance projects
               </p>
             </div>
 
@@ -2854,7 +2804,8 @@ function Home() {
         </div>
       </section>
 
-      {/* ── Contact ── */}
+      {/* ── Contact (temporarily disabled) ── */}
+      {false && (
       <section id="contact" className="contact-section">
         <div className="contact-section-inner">
           <motion.div
@@ -2952,6 +2903,7 @@ function Home() {
           </p>
         </div>
       </section>
+      )}
     </div>
   );
 }

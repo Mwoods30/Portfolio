@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-
 const footerStyles = `
 :root {
   --primary: #fdfdfdff;
@@ -285,135 +283,13 @@ const footerStyles = `
 }
 `;
 
-const quickLinks = [
-  { label: 'About', target: 'about' },
-  { label: 'Projects', target: 'portfolio' },
-  { label: 'Skills', target: 'skills' },
-  { label: 'Journey', target: 'journey' },
-  { label: 'Resume', target: 'resume' },
-  { label: 'Contact', target: 'contact' },
-];
-
-const resources = [
-  { label: 'Download Resume', href: '/MatthewWoodsResume.pdf' },
-  { label: 'GitHub Portfolio', href: 'https://github.com/Mwoods30' },
-  { label: 'LinkedIn Profile', href: 'https://www.linkedin.com/in/matthew-woods-18b52526b' },
-];
-
-const socialLinks = [
-  {
-    href: 'https://www.linkedin.com/in/matthew-woods-18b52526b',
-    label: 'LinkedIn',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.1 1 2.48 1s2.5 1.12 2.5 2.5zM0 8.98h5V24H0V8.98zM8.98 8.98h4.8v2.05h.07c.67-1.27 2.3-2.61 4.74-2.61 5.07 0 6 3.34 6 7.68V24h-5v-7.04c0-1.68-.03-3.84-2.34-3.84-2.34 0-2.7 1.83-2.7 3.72V24h-5V8.98z" />
-      </svg>
-    ),
-  },
-  {
-    href: 'https://github.com/Mwoods30',
-    label: 'GitHub',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M12 .5C5.73.5.76 5.48.76 11.74c0 4.9 3.16 9.05 7.55 10.52.55.1.75-.24.75-.53 0-.26-.01-1.12-.02-2.03-3.07.67-3.72-1.47-3.72-1.47-.5-1.27-1.22-1.61-1.22-1.61-.99-.68.08-.66.08-.66 1.1.08 1.68 1.13 1.68 1.13.97 1.66 2.54 1.18 3.15.9.1-.7.38-1.18.69-1.45-2.45-.28-5.02-1.23-5.02-5.48 0-1.21.43-2.2 1.13-2.98-.11-.28-.49-1.4.11-2.92 0 0 .92-.3 3.02 1.13A10.5 10.5 0 0112 6.8c.93.004 1.86.13 2.73.38 2.1-1.42 3.02-1.13 3.02-1.13.6 1.52.22 2.64.11 2.92.7.78 1.13 1.77 1.13 2.98 0 4.26-2.58 5.2-5.04 5.48.39.34.73 1.01.73 2.03 0 1.47-.01 2.66-.01 3.02 0 .29.2.64.76.53 4.39-1.47 7.55-5.62 7.55-10.52C23.24 5.48 18.27.5 12 .5z" />
-      </svg>
-    ),
-  },
-  {
-    href: 'https://leetcode.com/Mattwoods301/',
-    label: 'LeetCode',
-    icon: (
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M12.707 10.293a1 1 0 00-1.414 0L9 12.586 7.707 11.293a1 1 0 10-1.414 1.414l2.5 2.5a1 1 0 001.414 0l4-4a1 1 0 000-1.414z" />
-        <path d="M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1zm1 2v14h14V5H5z" />
-      </svg>
-    ),
-  },
-];
-
-const footerInsights = [
-  'Currently exploring advanced motion design in React.',
-  'Always open to collaborating on playful UX and game mechanics.',
-  'Comfortable shipping to Netlify, Vercel, and Firebase-hosted stacks.',
-];
-
 function Footer() {
-  const navigate = useNavigate();
-
-  const scrollToSection = (sectionId: string) => {
-    if (window.location.pathname !== '/') {
-      navigate('/');
-      setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    } else {
-      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   const currentYear = new Date().getFullYear();
 
   return (
     <>
       <style>{footerStyles}</style>
       <footer className="footer">
-        <div className="footer-shell">
-          <div className="footer-brand">
-            <span className="footer-badge">Matthew Woods</span>
-            <h2 className="footer-title">Designing playful, accessible, and performant web products.</h2>
-            <p className="footer-tagline">
-              From interactive games to production-ready dashboards, I thrive on crafting experiences where thoughtful
-              UX meets reliable engineering. Let&apos;s collaborate on what comes next.
-            </p>
-            <div className="footer-actions">
-              <button type="button" className="footer-button primary" onClick={() => scrollToSection('contact')}>
-                Start a project
-              </button>
-              <a className="footer-button secondary" href="mailto:mattwoods301@gmail.com">
-                Say hello
-              </a>
-            </div>
-            <div className="footer-insight">
-              {footerInsights.map((insight) => (
-                <div key={insight}>{insight}</div>
-              ))}
-            </div>
-          </div>
-
-          <div className="footer-columns">
-            <div className="footer-column">
-              <h3>Navigate</h3>
-              {quickLinks.map((link) => (
-                <button
-                  key={link.label}
-                  type="button"
-                  className="footer-link-button"
-                  onClick={() => scrollToSection(link.target)}
-                >
-                  {link.label}
-                </button>
-              ))}
-            </div>
-            <div className="footer-column">
-              <h3>Resources</h3>
-              {resources.map((item) => (
-                <a key={item.label} className="footer-link" href={item.href} target="_blank" rel="noopener noreferrer">
-                  {item.label}
-                </a>
-              ))}
-            </div>
-            <div className="footer-column">
-              <h3>Stay in touch</h3>
-              <div className="footer-social">
-                {socialLinks.map((social) => (
-                  <a key={social.label} href={social.href} aria-label={social.label} target="_blank" rel="noreferrer">
-                    {social.icon}
-                  </a>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="footer-bottom">
           <span>© {currentYear} Matthew Woods. Built with React and a love for thoughtful design.</span>
           <a href="mailto:mattwoods301@gmail.com">mattwoods301@gmail.com</a>

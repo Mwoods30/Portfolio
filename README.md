@@ -58,7 +58,7 @@ src/
 - **Frontend**: React, JavaScript, HTML, CSS
 - **Backend**: Node.js, Python, Databases
 - **Game Development**: Canvas API, Game Logic, Swift
-- **Education**: Computer Science at Rowan University
+- **Education**: B.S. in Computer Science from Rowan University
 
 ### 📄 Resume
 - Downloadable PDF resume
@@ -166,7 +166,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 About Me
 
-I'm Matthew Woods, a Computer Science student at Rowan University passionate about web development, game development, and creating engaging user experiences. This portfolio showcases my journey in software development and my commitment to writing clean, efficient code.
+I'm Matthew Woods, a B.S. Computer Science graduate from Rowan University passionate about web development, game development, and creating engaging user experiences. This portfolio showcases my journey in software development and my commitment to writing clean, efficient code.
 
 ## 📞 Get In Touch
 
